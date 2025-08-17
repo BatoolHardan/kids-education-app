@@ -23,7 +23,7 @@ class SoundManager {
 
   static final AudioPlayer _player = AudioPlayer();
 
-  static final Map<String, AssetSource> _cache = {};
+  // static final Map<String, AssetSource> _cache = {};
   static StreamSubscription<void>? _navigationSub;
 
   static Future<void> playRandomCorrectSound() async {
@@ -59,10 +59,11 @@ class SoundManager {
 
   static Future<void> play(String soundPath) async {
     try {
-      await _player.stop();
+      // await _player.stop();
       final source =
-          _cache[soundPath] ??
+          // _cache[soundPath] ??
           AssetSource(soundPath.replaceFirst('assets/', ''));
+      await _player.setSource(source);
       await _player.play(source);
     } catch (e) {
       debugPrint('Error playing sound: $e');

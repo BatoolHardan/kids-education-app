@@ -5,11 +5,12 @@ import 'package:pro5/Button/previous_button.dart';
 import 'package:pro5/animations/animates_image.dart';
 import 'package:pro5/animations/page_sound_controller.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/pages/arabic_letters/letter_data.dart';
 import 'package:pro5/utils/navigation_utils.dart';
 
 class LearningScreen extends StatefulWidget {
   final String title;
-  final List<Map<String, dynamic>> items;
+  final List<Item> items;
   final bool fixedBackground;
   final String? fixedBackgroundImage;
 
@@ -27,7 +28,6 @@ class LearningScreen extends StatefulWidget {
 
 class _LearningScreenState extends State<LearningScreen> {
   late final PageController _pageController;
-  late final SoundManager _soundManager;
   late final DynamicPageController _controller;
   int _currentIndex = 0;
 
@@ -36,8 +36,9 @@ class _LearningScreenState extends State<LearningScreen> {
     super.initState();
     _pageController = PageController();
     _controller = DynamicPageController(
+      dynamicItem: null,
       pageController: _pageController,
-      soundManager: _soundManager,
+      soundManager: SoundManager(),
       items: widget.items,
     );
 
@@ -71,7 +72,7 @@ class _LearningScreenState extends State<LearningScreen> {
                       widget.fixedBackgroundImage!,
                       fit: BoxFit.cover,
                     )
-                    : Container(color: currentItem['color'] ?? Colors.white),
+                    : Container(color: currentItem.color ?? Colors.white),
           ),
 
           // محتوى الصفحة مع الانيميشن
@@ -81,16 +82,16 @@ class _LearningScreenState extends State<LearningScreen> {
               children: [
                 DynamicAnimatedSwitcher(
                   duration: const Duration(milliseconds: 600),
-                  childKey: ValueKey(currentItem['image']),
+                  childKey: ValueKey(currentItem.image),
                   child: Image.asset(
-                    currentItem['image'],
+                    currentItem.image,
                     height: 200,
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  currentItem['word'] ?? '',
+                  currentItem.word ?? '',
                   style: const TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
@@ -99,27 +100,27 @@ class _LearningScreenState extends State<LearningScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                if (currentItem['exampleImage'] != null)
-                  DynamicAnimatedSwitcher(
-                    duration: const Duration(milliseconds: 600),
-                    childKey: ValueKey(currentItem['exampleImage']),
-                    child: Image.asset(
-                      currentItem['exampleImage'],
-                      height: 120,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                if (currentItem['exampleText'] != null) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    currentItem['exampleText']!,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontFamily: 'Ghayaty',
-                    ),
-                  ),
-                ],
+                // if (currentItem['exampleImage'] != null)
+                //   DynamicAnimatedSwitcher(
+                //     duration: const Duration(milliseconds: 600),
+                //     childKey: ValueKey(currentItem['exampleImage']),
+                //     child: Image.asset(
+                //       currentItem['exampleImage'],
+                //       height: 120,
+                //       fit: BoxFit.contain,
+                //     ),
+                //   ),
+                // if (currentItem['exampleText'] != null) ...[
+                //   const SizedBox(height: 10),
+                //   Text(
+                //     currentItem['exampleText']!,
+                //     style: const TextStyle(
+                //       fontSize: 24,
+                //       color: Colors.white,
+                //       fontFamily: 'Ghayaty',
+                //     ),
+                //   ),
+                // ],
               ],
             ),
           ),

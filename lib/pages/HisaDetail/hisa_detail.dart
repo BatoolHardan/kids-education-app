@@ -40,7 +40,8 @@ class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
     _controller = DynamicPageController(
       pageController: _pageController,
       soundManager: _soundManager,
-      items: _convertDynamicItemsToMaps(widget.items),
+      items: [],
+      dynamicItem:(widget.items),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

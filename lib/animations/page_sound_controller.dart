@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/pages/HisaDetail/six_model.dart';
+import 'package:pro5/pages/arabic_letters/letter_data.dart';
 
 class DynamicPageController {
   final PageController pageController;
   final SoundManager soundManager;
-  final List<Map<String, dynamic>> items;
+  final List<Item> items;
+  final List<DynamicItem>? dynamicItem;
   int currentIndex = 0;
 
   DynamicPageController({
     required this.pageController,
     required this.soundManager,
     required this.items,
+    required this.dynamicItem,
   });
 
   void goToPage(int index) {
@@ -42,11 +46,9 @@ class DynamicPageController {
     }
   }
 
-  void playCurrentSound() {
-    final soundPath = items[currentIndex]['sound'];
-    if (soundPath != null) {
-      SoundManager.stopAll();
+  void playCurrentSound() async{
+    final soundPath = items[currentIndex].sound;
+      // await SoundManager.stopAll();
       SoundManager.play(soundPath);
-    }
   }
 }

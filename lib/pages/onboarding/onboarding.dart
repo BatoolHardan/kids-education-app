@@ -30,18 +30,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void initState() {
     super.initState();
-
-    // ✅ تحقق من تسجيل الدخول
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // المستخدم مسجل دخول بالفعل → ننتقل مباشرة للصفحة الرئيسية
-      Future.delayed(Duration.zero, () {
-        Get.offAll(
-          () => StageThreeFourScreen(),
-        ); // بدليها باسم صفحتك الرئيسية الفعلية
-      });
-      return;
-    }
     _controller = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
@@ -56,6 +44,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: const Duration(seconds: 5),
       vsync: this,
     )..forward();
+    // ✅ تحقق من تسجيل الدخول
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // المستخدم مسجل دخول بالفعل → ننتقل مباشرة للصفحة الرئيسية
+      Future.delayed(Duration.zero, () {
+        Get.offAll(
+          () => StageThreeFourScreen(),
+        ); // بدليها باسم صفحتك الرئيسية الفعلية
+      });
+      return;
+    }
+
 
     _startCloudSequence();
   }
