@@ -18,7 +18,7 @@ List<DynamicItem> dummyItems = [
     hisaImage: "assets/images/المهن/معلم.png",
     objectImage: "assets/images/المهن/اقلام تلوين.png", // أقلام تلوين
     example: "يرسم الأشكال بالألوان لشرح الدرس",
-    soundPath: '',
+    soundPath: 'assets/sounds/professions_sound/المعلم.mp3',
   ),
 
   // الصيدلاني (الدواء)
@@ -28,7 +28,7 @@ List<DynamicItem> dummyItems = [
     hisaImage: "assets/images/المهن/صيدلاني.png",
     objectImage: "assets/images/المهن/دواء.png", // علبة دواء
     example: "يقرأ التعليمات على علبة الدواء",
-    soundPath: '',
+    soundPath: 'assets/sounds/professions_sound/الصيدلاني.mp3',
   ),
 
   // الموسيقي (الميكروفون)
@@ -38,7 +38,7 @@ List<DynamicItem> dummyItems = [
     hisaImage: "assets/images/المهن/موسيقي.png",
     objectImage: "assets/images/المهن/مكريفون.png", // ميكروفون
     example: "يغني أغنية جميلة بالميكروفون",
-    soundPath: '',
+    soundPath: 'assets/sounds/professions_sound/الموسيقي.mp3',
   ),
 
   // النجار (المنشار)
@@ -48,6 +48,24 @@ List<DynamicItem> dummyItems = [
     hisaImage: "assets/images/المهن/نجار.png",
     objectImage: "assets/images/المهن/منشار.png", // منشار
     example: "يقطع لوح خشب باستخدام المنشار",
-    soundPath: '',
+    soundPath: 'assets/sounds/professions_sound/النجار1.mp3',
+  ),
+  // مهنة الممرض/ة
+  DynamicItem(
+    title: "الممرض",
+    desc: "يساعد الطبيب في رعاية المرضى",
+    hisaImage: "assets/images/المهن/ممرض.png",
+    objectImage: " ",
+    example: "يقوم بقياس درجة الحرارة",
+    soundPath: "assets/sounds/professions/nurse.mp3",
+  ),
+  // مهنة الرسام/ة
+  DynamicItem(
+    title: "الرسام",
+    desc: "يرسم لوحات فنية جميلة",
+    hisaImage: "assets/images/المهن/رسام.png",
+    objectImage: "assets/images/المهن/دفتر الرسام.jpg",
+    example: "يرسم منظرًا طبيعيًا بالألوان",
+    soundPath: "assets/sounds/professions_sound/الرسام.mp3",
   ),
 ];

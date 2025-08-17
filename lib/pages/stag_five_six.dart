@@ -36,7 +36,7 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       "title": "الحواس الخمس",
       "background": "assets/images/حواس/2.jpeg",
       "color": Colors.redAccent,
-      "soundPath": "assets/sounds/hello_sound/welcome_seasons.mp3",
+      "soundPath": "assets/sounds/hello_sound/الحواس ترحيبي.mp3",
       "page": LearnScreen(
         items: senses,
         title: "الحواس الخمسة",
@@ -46,14 +46,14 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
     },
     {
       "title": "المهن",
-      "background": "assets/images/المهن/خلفية.jpeg",
+      "background": "assets/images/المهن/خلفية الكارد.png",
       "color": Colors.orange,
-      "soundPath": "sounds/hello_sound/ترحيبي الاختبار.mp3",
+      "soundPath": "assets/sounds/hello_sound/الحواس ترحيبي.mp3",
       "page": LearnScreen(
         items: dummyItems,
         title: "المهن",
         fixedBackground: true,
-        fixedBackgroundImage: "assets/images/المهن/خلفية الكارد.png",
+        fixedBackgroundImage: "assets/images/المهن/خلفية.jpeg",
       ),
     },
     {
