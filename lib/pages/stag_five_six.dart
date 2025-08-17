@@ -36,7 +36,7 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       "background": "assets/images/حواس/2.jpeg",
       "color": Colors.redAccent,
       "soundPath": "assets/sounds/hello_sound/welcome_seasons.mp3",
-      "page": AnimatedPagesScreen(
+      "page": LearnScreen(
         items: senses,
         title: "الحواس الخمسة",
         fixedBackground: true,
