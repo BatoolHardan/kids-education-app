@@ -5,6 +5,7 @@ import 'package:pro5/animations/pressable_card.dart';
 import 'package:pro5/animations/slidIn_card.dart';
 
 import 'package:pro5/pages/HisaDetail/six_data.dart';
+import 'package:pro5/pages/Profession/sample_data.dart';
 import 'package:pro5/pages/Seasons/seasons_page.dart';
 import 'package:pro5/pages/exames/Hisa_test/sens_card.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
@@ -44,11 +45,16 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       ),
     },
     {
-      "title": "اختبار الحواس",
+      "title": "المهن",
       "background": "assets/images/backgrounds/101.png",
       "color": Colors.orange,
       "soundPath": "sounds/hello_sound/ترحيبي الاختبار.mp3",
-      "page": SensesQuizPage(),
+      "page": LearnScreen(
+        items: dummyItems,
+        title: "المهن",
+        fixedBackground: true,
+        fixedBackgroundImage: "assets/images/المهن/خلفية الكارد.png ",
+      ),
     },
     {
       "title": "الفصول الأربعة",
