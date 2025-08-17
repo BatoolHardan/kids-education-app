@@ -8,13 +8,13 @@ import 'package:pro5/animations/sound_play.dart';
 import 'package:pro5/utils/navigation_utils.dart';
 import 'package:pro5/pages/HisaDetail/six_model.dart';
 
-class AnimatedPagesScreen extends StatefulWidget {
+class LearnScreen extends StatefulWidget {
   final String title;
   final List<DynamicItem> items;
   final bool fixedBackground;
   final String? fixedBackgroundImage;
 
-  const AnimatedPagesScreen({
+  const LearnScreen({
     super.key,
     required this.title,
     required this.items,
@@ -23,10 +23,10 @@ class AnimatedPagesScreen extends StatefulWidget {
   });
 
   @override
-  State<AnimatedPagesScreen> createState() => _AnimatedPagesScreenState();
+  State<LearnScreen> createState() => _LearnScreenState();
 }
 
-class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
+class _LearnScreenState extends State<LearnScreen> {
   late final PageController _pageController;
   late final DynamicPageController _controller;
   int _currentIndex = 0;
@@ -40,7 +40,7 @@ class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
       pageController: _pageController,
       soundManager: SoundManager(),
       items: [],
-      dynamicItem:(widget.items),
+      dynamicItem: (widget.items),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
