@@ -46,14 +46,14 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
     },
     {
       "title": "المهن",
-      "background": "assets/images/backgrounds/101.png",
+      "background": "assets/images/المهن/خلفية.jpeg",
       "color": Colors.orange,
       "soundPath": "sounds/hello_sound/ترحيبي الاختبار.mp3",
       "page": LearnScreen(
         items: dummyItems,
         title: "المهن",
         fixedBackground: true,
-        fixedBackgroundImage: "assets/images/المهن/خلفية الكارد.png ",
+        fixedBackgroundImage: "assets/images/المهن/خلفية الكارد.png",
       ),
     },
     {

@@ -1,63 +1,53 @@
 import 'package:pro5/pages/HisaDetail/six_model.dart';
 
 List<DynamicItem> dummyItems = [
-  // مهنة الطبيب
+  // الطبيب (صورة الإبرة)
   DynamicItem(
     title: "الطبيب",
-    desc: "يعالج المرضى ويشفي الأمراض",
+    desc: "يستخدم الإبرة لإعطاء الدواء للمرضى",
     hisaImage: "assets/images/المهن/طبيب.png",
-    objectImage: "assets/professions/doctor_tools.png",
-    example: "يستخدم السماعة لفحص القلب",
-    soundPath: "assets/sounds/professions/doctor.mp3",
+    objectImage: "assets/images/المهن/ابرة.png", // صورة إبرة
+    example: "يحقن الدواء لعلاج المريض",
+    soundPath: '',
   ),
 
-  // مهنة الممرض/ة
-  DynamicItem(
-    title: "الممرض",
-    desc: "يساعد الطبيب في رعاية المرضى",
-    hisaImage: "assets/images/المهن/ممرض.png",
-    objectImage: "assets/professions/nurse_tools.png",
-    example: "يقوم بقياس درجة الحرارة",
-    soundPath: "assets/sounds/professions/nurse.mp3",
-  ),
-
-  // مهنة المعلم/ة
+  // المعلم (أقلام التلوين)
   DynamicItem(
     title: "المعلم",
-    desc: "يعلم الأطفال القراءة والكتابة",
+    desc: "يستخدم الأقلام لتعليم الأطفال الرسم والكتابة",
     hisaImage: "assets/images/المهن/معلم.png",
-    objectImage: "assets/professions/classroom.png",
-    example: "يشرح الدرس على السبورة",
-    soundPath: "assets/sounds/professions/teacher.mp3",
+    objectImage: "assets/images/المهن/اقلام تلوين.png", // أقلام تلوين
+    example: "يرسم الأشكال بالألوان لشرح الدرس",
+    soundPath: '',
   ),
 
-  // مهنة الصيدلاني
+  // الصيدلاني (الدواء)
   DynamicItem(
     title: "الصيدلاني",
-    desc: "يجهز الأدوية وينصح المرضى",
+    desc: "يجهز علب الدواء وينظم جرعات العلاج",
     hisaImage: "assets/images/المهن/صيدلاني.png",
-    objectImage: "assets/professions/pharmacy.png",
-    example: "يقرأ الوصفة الطبية بدقة",
-    soundPath: "assets/sounds/professions/pharmacist.mp3",
+    objectImage: "assets/images/المهن/دواء.png", // علبة دواء
+    example: "يقرأ التعليمات على علبة الدواء",
+    soundPath: '',
   ),
 
-  // مهنة الرسام/ة
+  // الموسيقي (الميكروفون)
   DynamicItem(
-    title: "الرسام",
-    desc: "يرسم لوحات فنية جميلة",
-    hisaImage: "assets/images/المهن/رسام.png",
-    objectImage: "assets/professions/painting.png",
-    example: "يرسم منظرًا طبيعيًا بالألوان",
-    soundPath: "assets/sounds/professions/painter.mp3",
+    title: "الموسيقي",
+    desc: "يغني باستخدام الميكروفون ويعزف الآلات",
+    hisaImage: "assets/images/المهن/موسيقي.png",
+    objectImage: "assets/images/المهن/مكريفون.png", // ميكروفون
+    example: "يغني أغنية جميلة بالميكروفون",
+    soundPath: '',
   ),
 
-  // مهنة النجار (بدلاً من الموسيقي)
+  // النجار (المنشار)
   DynamicItem(
     title: "النجار",
-    desc: "يصنع الأثاث والأشياء الخشبية",
+    desc: "يستخدم المنشار لقص الخشب وصنع الأثاث",
     hisaImage: "assets/images/المهن/نجار.png",
-    objectImage: "assets/professions/carpenter_tools.png",
-    example: "يصنع كرسيًا من الخشب",
-    soundPath: "assets/sounds/professions/carpenter.mp3",
+    objectImage: "assets/images/المهن/منشار.png", // منشار
+    example: "يقطع لوح خشب باستخدام المنشار",
+    soundPath: '',
   ),
 ];
