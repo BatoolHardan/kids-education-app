@@ -52,7 +52,10 @@ class _PressableCardState extends State<PressableCard>
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
+      onTap: () async {
+        await SoundManager.play(widget.soundPath);
+        await SoundManager.player.onPlayerComplete.first;
+
         Navigator.push(context, MaterialPageRoute(builder: (_) => widget.page));
       },
       child: Container(

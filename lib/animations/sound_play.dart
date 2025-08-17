@@ -21,14 +21,14 @@ class SoundManager {
     'sounds/الأصوات التشجيعية/رائعة.mp3',
   ];
 
-  static final AudioPlayer _player = AudioPlayer();
+  static final AudioPlayer player = AudioPlayer();
 
   // static final Map<String, AssetSource> _cache = {};
   static StreamSubscription<void>? _navigationSub;
 
   static Future<void> playRandomCorrectSound() async {
     final randomIndex = Random().nextInt(_sounds.length);
-    await _player.play(AssetSource(_sounds[randomIndex]));
+    await player.play(AssetSource(_sounds[randomIndex]));
   }
 
   static int _lastIndex = -1;
@@ -40,15 +40,15 @@ class SoundManager {
     } while (randomIndex == _lastIndex && _soundPaths.length > 1);
 
     _lastIndex = randomIndex;
-    await _player.play(AssetSource(_soundPaths[randomIndex]));
+    await player.play(AssetSource(_soundPaths[randomIndex]));
   }
 
-  static Future<void> preload(List<String?> soundPaths) async {
+  static Future<void>   preload(List<String?> soundPaths) async {
     if (_isPreloaded) return;
     for (var path in soundPaths) {
       if (path != null) {
         try {
-          await _player.setSource(AssetSource(path));
+          await player.setSource(AssetSource(path));
         } catch (e) {
           debugPrint("Error preloading $path: $e");
         }
@@ -63,8 +63,9 @@ class SoundManager {
       final source =
           // _cache[soundPath] ??
           AssetSource(soundPath.replaceFirst('assets/', ''));
-      await _player.setSource(source);
-      await _player.play(source);
+      await player.setSource(source);
+      await player.play(source);
+
     } catch (e) {
       debugPrint('Error playing sound: $e');
     }
@@ -72,14 +73,14 @@ class SoundManager {
 
   static Future<void> stopAll() async {
     try {
-      await _player.stop();
+      await player.stop();
     } catch (e) {
       debugPrint('Error stopping sound: $e');
     }
   }
 
   static void dispose() {
-    _player.dispose();
+    player.dispose();
   }
 
   /// Pop sound (خاص)
@@ -102,10 +103,10 @@ class SoundManager {
     // إلغاء أي مستمع قديم
     await _navigationSub?.cancel();
 
-    await _player.play(AssetSource(soundPath.replaceFirst('assets/', '')));
+    await player.play(AssetSource(soundPath.replaceFirst('assets/', '')));
 
     // أضف مستمع جديد
-    _navigationSub = _player.onPlayerComplete.listen((_) {
+    _navigationSub = player.onPlayerComplete.listen((_) {
       if (Get.context != null) {
         Get.to(
           () => page,
