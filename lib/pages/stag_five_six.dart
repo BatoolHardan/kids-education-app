@@ -4,11 +4,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:pro5/animations/pressable_card.dart';
 import 'package:pro5/animations/slidIn_card.dart';
 
-import 'package:pro5/pages/HisaDetail/hisa_detail.dart';
 import 'package:pro5/pages/HisaDetail/six_data.dart';
 import 'package:pro5/pages/Seasons/seasons_page.dart';
 import 'package:pro5/pages/exames/Hisa_test/sens_card.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
+import 'package:pro5/pages/learnscreen2.dart';
 import 'package:pro5/pages/onboarding/custom_drawer.dart';
 import 'package:pro5/pages/onboarding/main_child_page.dart';
 import 'package:pro5/pages/onboarding/pulsing_screen.dart';
