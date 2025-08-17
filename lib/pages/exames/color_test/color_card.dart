@@ -1,0 +1,382 @@
+import 'package:flutter/material.dart';
+
+class ColorQuiz extends StatefulWidget {
+  const ColorQuiz({super.key});
+
+  @override
+  _ColorQuizState createState() => _ColorQuizState();
+}
+
+class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
+  final List<String> quizColors = [
+    'red',
+    'blue',
+    'green',
+    'orange',
+    'black',
+    'white',
+    'yellow',
+    'brown',
+    'pink',
+  ];
+
+  int currentColorIndex = 0;
+  String targetColor = 'red';
+
+  List<ColorItem> items = [];
+  late AnimationController targetColorAnimationController;
+  late Animation<double> scaleAnimation;
+  late Animation<double> bounceAnimation;
+  late Animation<Color?> glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    targetColor = quizColors[currentColorIndex];
+    _setupItems();
+    _setupTargetColorAnimation();
+  }
+
+  void _setupItems() {
+    final otherColors =
+        quizColors.where((c) => c != targetColor).toList()..shuffle();
+    final correctItems = List.generate(3, (_) => ColorItem(targetColor));
+    final wrongItems = otherColors.take(6).map((c) => ColorItem(c)).toList();
+    items = [...correctItems, ...wrongItems]..shuffle();
+
+    for (var item in items) {
+      item.initAnimation(this);
+    }
+  }
+
+  void _setupTargetColorAnimation() {
+    targetColorAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1500),
+    );
+
+    scaleAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: targetColorAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    bounceAnimation = Tween(begin: 0.0, end: -15.0).animate(
+      CurvedAnimation(
+        parent: targetColorAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    glowAnimation = ColorTween(
+      begin: ColorItem(targetColor).toColor(),
+      end: ColorItem(targetColor).toColor().withOpacity(0.7),
+    ).animate(
+      CurvedAnimation(
+        parent: targetColorAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    Future.delayed(Duration(milliseconds: 700), () {
+      if (mounted) targetColorAnimationController.repeat(reverse: true);
+    });
+  }
+
+  void handleTap(int index) async {
+    final item = items[index];
+    if (!item.visible) return;
+
+    if (item.color == targetColor) {
+      await item.controller.forward();
+      setState(() => item.visible = false);
+
+      final remainingCorrect = items.any(
+        (e) => e.visible && e.color == targetColor,
+      );
+      if (!remainingCorrect) {
+        await Future.delayed(Duration(milliseconds: 400));
+        if (currentColorIndex < quizColors.length - 1) {
+          setState(() {
+            currentColorIndex++;
+            targetColor = quizColors[currentColorIndex];
+            _setupItems();
+            targetColorAnimationController.reset();
+            targetColorAnimationController.repeat(reverse: true);
+          });
+        } else {
+          _showFinalCelebration();
+        }
+      }
+    }
+  }
+
+  void _showFinalCelebration() {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.celebration, color: Colors.amber, size: 80),
+                SizedBox(height: 16),
+                Text(
+                  '👏👏 أنهيت كل الألوان! ممتاز!',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      currentColorIndex = 0;
+                      targetColor = quizColors[0];
+                      _setupItems();
+                      targetColorAnimationController.reset();
+                      targetColorAnimationController.repeat(reverse: true);
+                    });
+                  },
+                  child: Text('إعادة المحاولة'),
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
+  Widget buildColorCircle(int index) {
+    final item = items[index];
+    final color = item.toColor();
+
+    return AnimatedBuilder(
+      animation: item.controller,
+      builder: (_, __) {
+        final scale = item.visible ? item.scale.value : 0.0;
+        return Transform.scale(
+          scale: scale,
+          child:
+              item.visible
+                  ? GestureDetector(
+                    onTap: () => handleTap(index),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: color,
+                      child:
+                          item.color == 'white'
+                              ? Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey),
+                                  color: color,
+                                ),
+                              )
+                              : null,
+                    ),
+                  )
+                  : SizedBox(width: 70, height: 70),
+        );
+      },
+    );
+  }
+
+  Widget buildTargetColor() {
+    return AnimatedBuilder(
+      animation: targetColorAnimationController,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, bounceAnimation.value),
+          child: Transform.scale(
+            scale: scaleAnimation.value,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: glowAnimation.value ?? Colors.transparent,
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 45,
+                backgroundColor: ColorItem(targetColor).toColor(),
+                child:
+                    targetColor == 'white'
+                        ? Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey),
+                            color: ColorItem(targetColor).toColor(),
+                          ),
+                        )
+                        : null,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    for (var item in items) {
+      item.controller.dispose();
+    }
+    targetColorAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 👇 الخلفية
+            Image.asset(
+              'assets/images/color/colors/bac.jpg',
+              fit: BoxFit.cover,
+            ),
+
+            // 👇 المحتوى
+            Column(
+              children: [
+                SizedBox(height: 24),
+                Text('اختر اللون:', style: TextStyle(fontSize: 20)),
+                SizedBox(height: 8),
+                buildTargetColor(),
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: LinearProgressIndicator(
+                    value: (currentColorIndex + 1) / quizColors.length,
+                    minHeight: 12,
+                    backgroundColor: Colors.grey.shade300,
+                    color: Colors.yellow.shade700,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '${currentColorIndex + 1} / ${quizColors.length}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  currentColorIndex < quizColors.length
+                      ? 'اللون الحالي: ${_arabicColorName(targetColor)}'
+                      : '🎉 انتهى الاختبار! أحسنت!',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        currentColorIndex < quizColors.length
+                            ? Colors.black
+                            : Colors.green.shade700,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                  child: Center(
+                    child: Container(
+                      width: 300,
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(color: Colors.grey, blurRadius: 8),
+                        ],
+                      ),
+                      child: GridView.builder(
+                        itemCount: items.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                        ),
+                        itemBuilder: (_, i) => buildColorCircle(i),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _arabicColorName(String color) {
+    final names = {
+      'red': 'أحمر',
+      'blue': 'أزرق',
+      'green': 'أخضر',
+      'orange': 'برتقالي',
+      'black': 'أسود',
+      'white': 'أبيض',
+      'yellow': 'أصفر',
+      'brown': 'بني',
+      'pink': 'وردي',
+    };
+    return names[color] ?? color;
+  }
+}
+
+class ColorItem {
+  final String color;
+  bool visible;
+  late AnimationController controller;
+  late Animation<double> scale;
+
+  ColorItem(this.color, {this.visible = true});
+
+  void initAnimation(TickerProvider vsync) {
+    controller = AnimationController(
+      vsync: vsync,
+      duration: Duration(milliseconds: 400),
+    );
+
+    scale = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+  }
+
+  Color toColor() {
+    switch (color) {
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'orange':
+        return Colors.orange;
+      case 'black':
+        return Colors.black;
+      case 'white':
+        return Colors.white;
+      case 'yellow':
+        return Colors.yellow;
+      case 'brown':
+        return Colors.brown;
+      case 'pink':
+        return Colors.pink;
+      default:
+        return Colors.grey;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+flutter_native_splash:
+  # الإعدادات الأساسية
+  image: assets/rewards/logo.png # مسار صورة اللوغو
+  color: "#FFFFFF"                     # لون الخلفية (أبيض)
+  android: true                        # تفعيل للأندرويد
+  ios: true                            # تفعيل لـ iOS
+  
+  # إعدادات إضافية (اختيارية)
+  fill: true               # لتمديد الصورة لتملأ الشاشة
+  web: false               # تعطيل للويب (افتراضي)
+  # صورة ثانوية (مثل شعار الشركة)
