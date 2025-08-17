@@ -28,7 +28,6 @@ class AnimatedPagesScreen extends StatefulWidget {
 
 class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
   late final PageController _pageController;
-  late final SoundManager _soundManager;
   late final DynamicPageController _controller;
   int _currentIndex = 0;
 
@@ -39,7 +38,7 @@ class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
 
     _controller = DynamicPageController(
       pageController: _pageController,
-      soundManager: _soundManager,
+      soundManager: SoundManager(),
       items: [],
       dynamicItem:(widget.items),
     );
@@ -49,22 +48,7 @@ class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
     });
   }
 
-  List<Map<String, dynamic>> _convertDynamicItemsToMaps(
-    List<DynamicItem> items,
-  ) {
-    return items
-        .map(
-          (item) => {
-            'title': item.title,
-            'desc': item.desc,
-            'image': item.hisaImage,
-            'exampleImage': item.objectImage,
-            'exampleText': item.example,
-            'sound': item.soundPath, // تأكد من وجود soundPath في DynamicItem
-          },
-        )
-        .toList();
-  }
+
 
   @override
   void dispose() {
@@ -222,7 +206,7 @@ class _AnimatedPagesScreenState extends State<AnimatedPagesScreen> {
               height: 0,
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: widget.items.length,
+                itemCount: widget.items.length ,
                 onPageChanged: (index) {
                   setState(() => _currentIndex = index);
                   _controller.goToPage(index);

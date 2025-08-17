@@ -23,7 +23,7 @@ class DynamicPageController {
   }
 
   void next({VoidCallback? onLastPage}) {
-    if (currentIndex < items.length - 1) {
+    if (currentIndex < ((items.isEmpty ? dynamicItem:items)?.length ??1) - 1) {
       currentIndex++;
       pageController.nextPage(
         duration: const Duration(milliseconds: 500),
@@ -47,8 +47,8 @@ class DynamicPageController {
   }
 
   void playCurrentSound() async{
-    final soundPath = items[currentIndex].sound;
+    final soundPath =(dynamicItem?.isNotEmpty ?? false) ?(dynamicItem?[currentIndex].soundPath) : items[currentIndex].sound;
       // await SoundManager.stopAll();
-      SoundManager.play(soundPath);
+      SoundManager.play(soundPath ?? "");
   }
 }
