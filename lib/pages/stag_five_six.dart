@@ -48,7 +48,7 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       "title": "المهن",
       "background": "assets/images/المهن/خلفية الكارد.png",
       "color": Colors.orange,
-      "soundPath": "assets/sounds/hello_sound/الحواس ترحيبي.mp3",
+      "soundPath": "assets/sounds/hello_sound/المهن.mp3",
       "page": LearnScreen(
         items: dummyItems,
         title: "المهن",
@@ -60,7 +60,7 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       "title": "الفصول الأربعة",
       "background": "assets/images/backgrounds/خلفية_فصول-removebg-preview.png",
       "color": Colors.green,
-      "soundPath": "sounds/hello_sound/ترحيبي الفصول.mp3",
+      "soundPath": "assets/sounds/hello_sound/الفصول ترحيبي.mp3",
       "page": SeasonsHomePage(),
     },
     {

@@ -26,16 +26,37 @@ class LearnScreen extends StatefulWidget {
   State<LearnScreen> createState() => _LearnScreenState();
 }
 
-class _LearnScreenState extends State<LearnScreen> {
+class _LearnScreenState extends State<LearnScreen>
+    with TickerProviderStateMixin {
   late final PageController _pageController;
   late final DynamicPageController _controller;
   int _currentIndex = 0;
-
+  late AnimationController _titleAnimationController;
+  late AnimationController _descAnimationController;
+  late AnimationController _exampleAnimationController;
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _titleAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+    _descAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
 
+    _exampleAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1200),
+    );
+    // بدء الأنيميشن بعد تأخير بسيط
+    Future.delayed(Duration(milliseconds: 300), () {
+      _titleAnimationController.forward();
+      _descAnimationController.forward();
+      _exampleAnimationController.forward();
+    });
     _controller = DynamicPageController(
       pageController: _pageController,
       soundManager: SoundManager(),
@@ -47,8 +68,6 @@ class _LearnScreenState extends State<LearnScreen> {
       _controller.playCurrentSound();
     });
   }
-
-
 
   @override
   void dispose() {
@@ -95,49 +114,97 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // النص الأول
-                Text(
-                  currentItem.title,
-                  style: const TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.lightGreen,
-                    fontFamily: 'Ghayaty',
-                  ),
+                AnimatedBuilder(
+                  animation: _titleAnimationController,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(
+                        0,
+                        (1 - _titleAnimationController.value) * 50,
+                      ),
+                      child: Opacity(
+                        opacity: _titleAnimationController.value,
+                        child: Text(
+                          currentItem.title,
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.lightGreen,
+                            fontFamily: 'Ghayaty',
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: Offset(3, 3),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 10),
 
                 // النص الثاني (الوصف)
-                Text(
-                  currentItem.desc,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: Colors.yellow,
-                    fontFamily: 'Ghayaty',
-                  ),
-                ),
-                const SizedBox(height: 30),
-
-                // الصورة الثانية
-                DynamicAnimatedSwitcher(
-                  duration: const Duration(milliseconds: 600),
-                  childKey: ValueKey(currentItem.objectImage),
-                  child: Image.asset(
-                    currentItem.objectImage,
-                    height: 250,
-                    fit: BoxFit.contain,
-                  ),
+                AnimatedBuilder(
+                  animation: _descAnimationController,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _descAnimationController.value,
+                      child: Opacity(
+                        opacity: _descAnimationController.value,
+                        child: Text(
+                          currentItem.desc,
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.yellow,
+                            fontFamily: 'Ghayaty',
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 5),
 
                 // النص الثالث (المثال)
-                Text(
-                  currentItem.example,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.pinkAccent,
-                    fontFamily: 'Ghayaty',
-                  ),
+                AnimatedBuilder(
+                  animation: _exampleAnimationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: (1 - _exampleAnimationController.value) * 0.2,
+                      child: Transform.scale(
+                        scale: _exampleAnimationController.value,
+                        child: Opacity(
+                          opacity: _exampleAnimationController.value,
+                          child: Text(
+                            currentItem.example,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.pinkAccent,
+                              fontFamily: 'Ghayaty',
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 3,
+                                  offset: Offset(1, 1),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -194,7 +261,7 @@ class _LearnScreenState extends State<LearnScreen> {
             bottom: 100,
             right: MediaQuery.of(context).size.width / 2 - 25,
             child: IconButton(
-              icon: const Icon(Icons.volume_up, size: 50, color: Colors.white),
+              icon: const Icon(Icons.volume_up, size: 50, color: Colors.orange),
               onPressed: () => _controller.playCurrentSound(),
             ),
           ),
@@ -206,7 +273,7 @@ class _LearnScreenState extends State<LearnScreen> {
               height: 0,
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: widget.items.length ,
+                itemCount: widget.items.length,
                 onPageChanged: (index) {
                   setState(() => _currentIndex = index);
                   _controller.goToPage(index);

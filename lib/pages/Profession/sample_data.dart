@@ -8,7 +8,7 @@ List<DynamicItem> dummyItems = [
     hisaImage: "assets/images/المهن/طبيب.png",
     objectImage: "assets/images/المهن/ابرة.png", // صورة إبرة
     example: "يحقن الدواء لعلاج المريض",
-    soundPath: '',
+    soundPath: "assets/sounds/professions_sound/الطبيب.mp3",
   ),
 
   // المعلم (أقلام التلوين)
@@ -55,16 +55,16 @@ List<DynamicItem> dummyItems = [
     title: "الممرض",
     desc: "يساعد الطبيب في رعاية المرضى",
     hisaImage: "assets/images/المهن/ممرض.png",
-    objectImage: " ",
+    objectImage: "assets/images/المهن/مقياس الحرارة.png",
     example: "يقوم بقياس درجة الحرارة",
-    soundPath: "assets/sounds/professions/nurse.mp3",
+    soundPath: "assets/sounds/professions_sound/الممرض.mp3",
   ),
   // مهنة الرسام/ة
   DynamicItem(
     title: "الرسام",
     desc: "يرسم لوحات فنية جميلة",
     hisaImage: "assets/images/المهن/رسام.png",
-    objectImage: "assets/images/المهن/دفتر الرسام.jpg",
+    objectImage: "assets/images/المهن/دفتر الرسم.png",
     example: "يرسم منظرًا طبيعيًا بالألوان",
     soundPath: "assets/sounds/professions_sound/الرسام.mp3",
   ),
