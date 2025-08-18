@@ -21,6 +21,7 @@ class PulsingWidget extends StatefulWidget {
 class _PulsingWidgetState extends State<PulsingWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -28,9 +29,14 @@ class _PulsingWidgetState extends State<PulsingWidget>
     _pulseController = AnimationController(
       vsync: this,
       duration: widget.duration,
-      lowerBound: widget.lowerBound,
-      upperBound: widget.upperBound,
     )..repeat(reverse: true);
+
+    _animation = Tween<double>(
+      begin: widget.lowerBound,
+      end: widget.upperBound,
+    ).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -41,6 +47,6 @@ class _PulsingWidgetState extends State<PulsingWidget>
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(scale: _pulseController, child: widget.child);
+    return ScaleTransition(scale: _animation, child: widget.child);
   }
 }
