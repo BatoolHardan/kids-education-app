@@ -102,6 +102,7 @@ flutter:
     - assets/sounds/الأصوات التشجيعية/
     - assets/images/المهن/
     - assets/sounds/professions_sound/
+    - assets/images/واجهة الاختبارات/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

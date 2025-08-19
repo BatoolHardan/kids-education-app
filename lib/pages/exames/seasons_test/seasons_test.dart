@@ -33,7 +33,8 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
   late Stopwatch stopwatch;
   late Timer timer;
   String elapsed = "00:00";
-
+  int correctAttempts = 0;
+  int wrongAttempts = 0;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -82,6 +83,7 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
       }
       attempts = 0;
       showCongrats = false;
+      wrongAttempts = 0; // إعادة تعيين الأخطاء
       stopwatch.reset();
       stopwatch.start();
       timer.cancel();
@@ -202,46 +204,36 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                               ),
                             );
                           },
-                          onWillAcceptWithDetails:
-                              (details) => details.data == name,
                           onAcceptWithDetails: (details) {
                             if (!placedCorrectly[name]!) {
-                              setState(() {
-                                placedCorrectly[name] = true;
-                                attempts++;
-                              });
-
+                              setState(() => placedCorrectly[name] = true);
                               if (placedCorrectly.values.every((v) => v)) {
                                 stopwatch.stop();
                                 timer.cancel();
-                                setState(() {
-                                  showCongrats = true;
-                                });
+                                setState(() => showCongrats = true);
                               }
-
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
                                     'صحيح! تم وضع $name في المكان الصحيح 🎉',
                                   ),
                                   backgroundColor: Colors.green,
-                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             }
                           },
+
                           onLeave: (data) {
-                            if (data != name) {
-                              setState(() {
-                                attempts++;
-                              });
+                            if (data != name && !placedCorrectly[name]!) {
+                              setState(
+                                () => wrongAttempts = wrongAttempts + 1,
+                              ); // زيادة العداد فقط عند الخطأ
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
                                     'هذه ليست المكان الصحيح، حاول مرة أخرى!',
                                   ),
                                   backgroundColor: Colors.redAccent,
-                                  duration: Duration(seconds: 2),
                                 ),
                               );
                             }
@@ -255,14 +247,15 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                 child: Column(
                   children: [
                     Text(
-                      'عدد المحاولات: $attempts',
-                      style: const TextStyle(fontSize: 18),
+                      'عدد الأخطاء: $wrongAttempts',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'الوقت: $elapsed',
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                    SizedBox(height: 10),
+                    Text('الوقت: $elapsed', style: TextStyle(fontSize: 18)),
                   ],
                 ),
               ),
