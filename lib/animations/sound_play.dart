@@ -12,6 +12,7 @@ class SoundManager {
     'sounds/الأصوات التشجيعية/حاول مرة أخرى.mp3',
     'sounds/الأصوات التشجيعية/فكر جيدا.mp3',
     'sounds/الأصوات التشجيعية/لاتيأس.mp3',
+    'assets/sounds/الأصوات التشجيعية/برافو.mp3',
   ];
   static bool _isPreloaded = false;
 
@@ -43,7 +44,7 @@ class SoundManager {
     await player.play(AssetSource(_soundPaths[randomIndex]));
   }
 
-  static Future<void>   preload(List<String?> soundPaths) async {
+  static Future<void> preload(List<String?> soundPaths) async {
     if (_isPreloaded) return;
     for (var path in soundPaths) {
       if (path != null) {
@@ -61,11 +62,10 @@ class SoundManager {
     try {
       // await _player.stop();
       final source =
-          // _cache[soundPath] ??
-          AssetSource(soundPath.replaceFirst('assets/', ''));
+      // _cache[soundPath] ??
+      AssetSource(soundPath.replaceFirst('assets/', ''));
       await player.setSource(source);
       await player.play(source);
-
     } catch (e) {
       debugPrint('Error playing sound: $e');
     }

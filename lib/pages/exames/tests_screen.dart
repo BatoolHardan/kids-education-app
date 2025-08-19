@@ -3,10 +3,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:pro5/animations/pressable_card.dart';
 import 'package:pro5/animations/slidIn_card.dart';
 import 'package:pro5/pages/exames/Hisa_test/sens_card.dart';
+import 'package:pro5/pages/exames/Shapes/shapes_quiz_screen.dart';
 import 'package:pro5/pages/exames/animal_test/animal_card.dart';
 import 'package:pro5/pages/exames/color_test/color_card.dart';
 import 'package:pro5/pages/exames/letters/exam_card.dart';
 import 'package:pro5/pages/exames/number_test/numbe_card.dart';
+import 'package:pro5/pages/exames/professions/professions_test.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
 
 class TestsScreen extends StatefulWidget {
@@ -31,7 +33,7 @@ class _TestsScreenState extends State<TestsScreen> {
     },
     {
       "title": "الأرقام",
-      "image": "assets/images/numbers.jpg",
+      "image": "assets/images/واجهة الاختبارات/ارقام.jpeg",
       "borderColor": Colors.blue,
       "page": NumberDragDropGame(),
       "sound": "sounds/hello_sound/ترحيبي الأرقام.mp3",
@@ -45,14 +47,15 @@ class _TestsScreenState extends State<TestsScreen> {
     },
     {
       "title": "الألوان",
-      "image": "sounds/hello_sound/ترحيبي الألوان.mp3",
+      "image": "assets/images/واجهة الاختبارات/الالوان.png",
+
       "borderColor": Colors.green,
       "page": ColorQuiz(),
       "sound": "assets/sounds/colors.mp3",
     },
     {
       "title": "الحواس",
-      "image": "assets/images/senses.jpg",
+      "image": "assets/images/واجهة الاختبارات/حواس.jpeg",
       "borderColor": Colors.purple,
       "page": SensesQuizPage(),
       "sound": "assets/sounds/hello_sound/الحواس ترحيبي.mp3",
@@ -66,16 +69,16 @@ class _TestsScreenState extends State<TestsScreen> {
     },
     {
       "title": "المهن",
-      "image": "assets/images/jobs.jpg",
+      "image": "assets/images/واجهة الاختبارات/مهن2.png",
       "borderColor": Colors.brown,
-      //"page": JobsPage(),
-      // "sound": "assets/sounds/jobs.mp3",
+      "page": JobsMatchingGame(),
+      "sound": "assets/sounds/hello_sound/المهن.mp3",
     },
     {
       "title": "الأشكال",
       "image": "assets/images/shapes.jpg",
       "borderColor": Colors.indigo,
-      //"page": ShapesPage(),
+      "page": ShapesQuizGame(),
       "sound": "assets/sounds/shapes.mp3",
     },
   ];
@@ -83,35 +86,59 @@ class _TestsScreenState extends State<TestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("اختبارات الأطفال")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: cardsData.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 3 / 2,
+      appBar: AppBar(
+        title: const Text(
+          "اختبارات الأطفال",
+          style: TextStyle(
+            color: Colors.black, // لجعل النص واضحًا
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Ghayaty',
           ),
-          itemBuilder: (context, index) {
-            final card = cardsData[index];
-            return SlideInCard(
-              fromRight:
-                  index % 2 ==
-                  0, // الكارد من اليمين إذا رقم زوجي، من اليسار إذا فردي
-              delayMilliseconds: index * 150, // تأخير متزايد لكل كارد
-              child: PressableCard(
-                title: card["title"],
-                backgroundImage: card["image"],
-                borderColor: card["borderColor"],
-                page: card["page"],
-                player: player,
-                isDarkMode: isDarkMode,
-                soundPath: card["sound"],
-              ),
-            );
-          },
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      extendBodyBehindAppBar: true, // ← هذا السطر مهم جداً
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/واجهة الاختبارات/خلفية.jpeg"),
+            fit: BoxFit.cover,
+            opacity: 0.7,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: kToolbarHeight + 16, // ← تعويض مساحة الـ AppBar
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
+          child: GridView.builder(
+            itemCount: cardsData.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 3 / 2,
+            ),
+            itemBuilder: (context, index) {
+              final card = cardsData[index];
+              return SlideInCard(
+                fromRight: index % 2 == 0,
+                delayMilliseconds: index * 150,
+                child: PressableCard(
+                  title: card["title"],
+                  backgroundImage: card["image"],
+                  borderColor: card["borderColor"],
+                  page: card["page"],
+                  player: player,
+                  isDarkMode: isDarkMode,
+                  soundPath: card["sound"],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
