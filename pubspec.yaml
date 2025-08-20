@@ -38,7 +38,7 @@ dependencies:
   get: ^4.7.2
   animate_do: ^2.1.0
   audioplayers: ^6.5.0
-  flutter_tts: ^3.6.3
+   
   lottie: ^3.3.1
   font_awesome_flutter: ^10.8.0
   firebase_core_dart: ^1.0.1
