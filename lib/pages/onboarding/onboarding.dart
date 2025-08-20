@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/pages/onboarding/login_page.dart';
+import 'package:pro5/pages/onboarding/main_child_page.dart';
 import 'package:pro5/pages/onboarding/sign_up_full.dart';
 import 'package:pro5/pages/stag_three_four.dart';
 
@@ -49,13 +50,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     if (user != null) {
       // المستخدم مسجل دخول بالفعل → ننتقل مباشرة للصفحة الرئيسية
       Future.delayed(Duration.zero, () {
-        Get.offAll(
-          () => StageThreeFourScreen(),
-        ); // بدليها باسم صفحتك الرئيسية الفعلية
+        Get.offAll(() => MainChildPage()); // بدليها باسم صفحتك الرئيسية الفعلية
       });
       return;
     }
-
 
     _startCloudSequence();
   }

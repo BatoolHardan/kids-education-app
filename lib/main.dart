@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/pages/onboarding/splash_second.dart';
 import 'package:pro5/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -50,7 +51,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Ghayaty",
         textTheme: const TextTheme(bodyLarge: TextStyle(fontSize: 18.0)),
       ),
-      home: const WelcomeScreen(),
+      home: const SplashWorldScreen(),
     );
   }
 }

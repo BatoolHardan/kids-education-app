@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pro5/pages/exames/tests_screen.dart';
+import 'package:pro5/pages/onboarding/data_kide_page.dart';
 import 'package:pro5/pages/onboarding/pulsing_screen.dart';
 import 'package:pro5/pages/stag_three_four.dart'; // تأكد من صحة المسار
-
-void main() {
-  runApp(const MainChildPage());
-}
 
 class MainChildPage extends StatelessWidget {
   const MainChildPage({super.key});
@@ -18,7 +15,7 @@ class MainChildPage extends StatelessWidget {
       title: 'تطبيق الأطفال',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        fontFamily: 'Tajawal',
+        fontFamily: 'Ghayaty',
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
             fontSize: 32,
@@ -45,86 +42,93 @@ class MainChildScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.only(top: 30),
-              child: Center(
+    return WillPopScope(
+      onWillPop: () async {
+        // بدل ما يخرج من التطبيق، نرجع لصفحة معينة باستخدام GetX
+        Get.off(() => const DataKideScreen());
+        return false; // منع الرجوع الافتراضي
+      },
+      child: Scaffold(
+        backgroundColor: Colors.lightBlue[50],
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.only(top: 30),
+                child: Center(
+                  child: Text(
+                    'مرحباً بك!',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Colors.blue[800],
+                      fontFamily: 'Ghayaty',
+                    ),
+                  ),
+                ),
+              ),
+
+              // Subtitle
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 40),
                 child: Text(
-                  'مرحباً بك!',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Colors.blue[800],
+                  'اختر ما تريد تعلمه اليوم',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.blue[600],
                     fontFamily: 'Ghayaty',
                   ),
                 ),
               ),
-            ),
 
-            // Subtitle
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 40),
-              child: Text(
-                'اختر ما تريد تعلمه اليوم',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.blue[600],
-                  fontFamily: 'Ghayaty',
+              // Circles with Pulsing Effect
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 50,
+                      right: 50,
+                      child: PulsingWidget(
+                        child: AnimatedCircle(
+                          icon: Icons.school,
+                          color: Colors.blueAccent,
+                          label: 'التعلم',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => const StageThreeFourScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 50,
+                      left: 50,
+                      child: PulsingWidget(
+                        child: AnimatedCircle(
+                          icon: Icons.games,
+                          color: Colors.pinkAccent,
+                          label: 'الاختبارات',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        TestsScreen(), // هنا الصفحة المطلوبة
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-
-            // Circles with Pulsing Effect
-            Expanded(
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 50,
-                    right: 50,
-                    child: PulsingWidget(
-                      child: AnimatedCircle(
-                        icon: Icons.school,
-                        color: Colors.blueAccent,
-                        label: 'التعلم',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => const StageThreeFourScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 50,
-                    left: 50,
-                    child: PulsingWidget(
-                      child: AnimatedCircle(
-                        icon: Icons.games,
-                        color: Colors.pinkAccent,
-                        label: 'الاختبارات',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) =>
-                                      TestsScreen(), // هنا الصفحة المطلوبة
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

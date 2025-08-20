@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:pro5/pages/onboarding/main_child_page.dart';
 import 'package:pro5/pages/stag_three_four.dart';
 
 class AuthController extends GetxController {
@@ -62,7 +63,7 @@ class AuthController extends GetxController {
 
   /// ✅ التوجه للشاشة الرئيسية بعد التسجيل
   void goToHomeIfRegistered(User user) {
-    Get.offAll(() => StageThreeFourScreen());
+    Get.offAll(() => MainChildPage());
   }
 
   /// ✅ جلب بيانات المستخدم من Firestore

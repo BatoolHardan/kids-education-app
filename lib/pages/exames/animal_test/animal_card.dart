@@ -3,11 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
-
-// تأكد من استيراد ResultScreen إذا كانت في ملف منفصل
-// import 'path_to_result_screen/result_screen.dart';
 
 class MemoryGameScreen extends StatefulWidget {
   const MemoryGameScreen({super.key});
@@ -18,6 +16,7 @@ class MemoryGameScreen extends StatefulWidget {
 
 class _MemoryGameScreenState extends State<MemoryGameScreen> {
   final int gridSize = 18;
+  bool showHint = true;
 
   List<String> images = [
     'assets/images/animalPicture/animal_game/اسد.png',
@@ -199,7 +198,17 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
               ),
             ],
           ),
-
+          // ✅ شاشة التلميح تظهر أول اللعبة
+          if (showHint)
+            GameHintOverlay(
+              hintText: "حاول أن تجد الأزواج المتشابهة من الحيوانات 🦁🦉",
+              hintAnimation: "assets/animations/baby girl.json",
+              onConfirm: () {
+                setState(() {
+                  showHint = false; // إغلاق التلميح وبدء اللعب
+                });
+              },
+            ),
           // عرض الانيميشن عند التطابق
           if (showLikeAnimation)
             Center(

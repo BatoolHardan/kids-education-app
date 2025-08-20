@@ -10,6 +10,7 @@ import 'package:pro5/pages/exames/letters/exam_card.dart';
 import 'package:pro5/pages/exames/number_test/numbe_card.dart';
 import 'package:pro5/pages/exames/professions/professions_test.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
+import 'package:pro5/pages/onboarding/pulsing_screen.dart';
 
 class TestsScreen extends StatefulWidget {
   const TestsScreen({super.key});
@@ -20,9 +21,8 @@ class TestsScreen extends StatefulWidget {
 
 class _TestsScreenState extends State<TestsScreen> {
   final AudioPlayer player = AudioPlayer();
-
   final bool isDarkMode = false;
-  // ممكن تغيّري حسب الوضع الليلي
+
   final List<Map<String, dynamic>> cardsData = [
     {
       "title": "الحيوانات",
@@ -48,10 +48,9 @@ class _TestsScreenState extends State<TestsScreen> {
     {
       "title": "الألوان",
       "image": "assets/images/واجهة الاختبارات/الالوان.png",
-
       "borderColor": Colors.green,
       "page": ColorQuiz(),
-      "sound": "assets/sounds/colors.mp3",
+      "sound": "assets/sounds/hello_sound/الالوان.mp3",
     },
     {
       "title": "الحواس",
@@ -76,10 +75,10 @@ class _TestsScreenState extends State<TestsScreen> {
     },
     {
       "title": "الأشكال",
-      "image": "assets/images/shapes.jpg",
+      "image": "assets/images/واجهة الاختبارات/الاشكال.jpeg",
       "borderColor": Colors.indigo,
-      "page": ShapesQuizGame(),
-      "sound": "assets/sounds/shapes.mp3",
+      "page": ShapeMatchingGame(),
+      "sound": "assets/sounds/hello_sound/الاشكال.mp3",
     },
   ];
 
@@ -90,7 +89,7 @@ class _TestsScreenState extends State<TestsScreen> {
         title: const Text(
           "اختبارات الأطفال",
           style: TextStyle(
-            color: Colors.black, // لجعل النص واضحًا
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontFamily: 'Ghayaty',
           ),
@@ -98,7 +97,7 @@ class _TestsScreenState extends State<TestsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      extendBodyBehindAppBar: true, // ← هذا السطر مهم جداً
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -109,7 +108,7 @@ class _TestsScreenState extends State<TestsScreen> {
         ),
         child: Padding(
           padding: const EdgeInsets.only(
-            top: kToolbarHeight + 16, // ← تعويض مساحة الـ AppBar
+            top: kToolbarHeight + 16,
             left: 16,
             right: 16,
             bottom: 16,
@@ -127,14 +126,21 @@ class _TestsScreenState extends State<TestsScreen> {
               return SlideInCard(
                 fromRight: index % 2 == 0,
                 delayMilliseconds: index * 150,
-                child: PressableCard(
-                  title: card["title"],
-                  backgroundImage: card["image"],
-                  borderColor: card["borderColor"],
-                  page: card["page"],
-                  player: player,
-                  isDarkMode: isDarkMode,
-                  soundPath: card["sound"],
+                child: PulsingWidget(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: PressableCard(
+                      title: card["title"],
+                      backgroundImage: card["image"],
+                      borderColor: card["borderColor"],
+                      page: card["page"],
+                      player: player,
+                      isDarkMode: isDarkMode,
+                      soundPath: card["sound"],
+                    ),
+                  ),
                 ),
               );
             },
