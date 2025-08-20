@@ -70,7 +70,7 @@ class _SplashWorldScreenState extends State<SplashWorldScreen>
   @override
   void dispose() {
     _controller.dispose();
-    SoundManager.dispose();
+    // SoundManager.dispose();
     super.dispose();
   }
 

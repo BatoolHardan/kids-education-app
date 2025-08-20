@@ -29,7 +29,7 @@ class _TestsScreenState extends State<TestsScreen> {
       "image": "assets/images/واجهة الاختبارات/حيوانات.png",
       "borderColor": Colors.orange,
       "page": MemoryGameScreen(),
-      "sound": "sounds/hello_sound/ترحيبي الحروف.mp3",
+      "sound": "sounds/hello_sound/hello_letters.mp3",
     },
     {
       "title": "الأرقام",
@@ -43,7 +43,7 @@ class _TestsScreenState extends State<TestsScreen> {
       "image": "assets/images/واجهة الاختبارات/حروف.png",
       "borderColor": Colors.red,
       "page": ExamScreen(),
-      "sound": "sounds/hello_sound/ترحيبي الحروف.mp3",
+      "sound": "sounds/hello_sound/hello_letters.mp3",
     },
     {
       "title": "الألوان",

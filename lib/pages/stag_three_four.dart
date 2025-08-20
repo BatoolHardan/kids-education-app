@@ -42,7 +42,7 @@ class _StageThreeFourScreenState extends State<StageThreeFourScreen>
       "title": "الحروف",
       "background": "assets/images/backgrounds/letterbac.png",
       "color": Colors.redAccent,
-      "soundPath": "sounds/hello_sound/ترحيبي الحروف.mp3",
+      "soundPath": "sounds/hello_sound/hello_letters.mp3",
       "page": LearningScreen(title: "الحروف", items: letters),
       "testPage": ExamScreen(),
     },

@@ -60,6 +60,7 @@ class SoundManager {
 
   static Future<void> play(String soundPath) async {
     try {
+      // await player.release();
       // await _player.stop();
       final source =
       // _cache[soundPath] ??
@@ -79,9 +80,9 @@ class SoundManager {
     }
   }
 
-  static void dispose() {
-    player.dispose();
-  }
+  // static void dispose() {
+  //   player.dispose();
+  // }
 
   /// Pop sound (خاص)
   static AudioPlayer? _popPlayer;

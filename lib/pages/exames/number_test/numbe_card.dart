@@ -18,7 +18,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
 
   @override
   void dispose() {
-    SoundManager.dispose();
+    // SoundManager.dispose();
     super.dispose();
   }
 
