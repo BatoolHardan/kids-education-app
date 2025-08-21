@@ -173,7 +173,6 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
       //
       SoundManager.playRandomCorrectSound();
 
-      scoreProf.addWrong();
       _animController.forward().then((_) {
         _animController.reverse();
       });
@@ -198,7 +197,10 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
         });
       }
     } else {
-      setState(() => _wrongAttempts++);
+      setState(() {
+        scoreProf.addWrong();
+        _wrongAttempts++;
+      });
       SoundManager.playRandomWrongSound();
       HapticFeedback.mediumImpact();
       ScaffoldMessenger.of(context).showSnackBar(
