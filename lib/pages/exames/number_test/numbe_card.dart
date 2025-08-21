@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pro5/animations/game_hint.dart';
+
 import 'package:pro5/animations/result_page.dart';
 import 'dart:math';
 
@@ -15,10 +17,9 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
 
   late List<int> draggableNumbers;
   Map<int, int?> placedNumbers = {};
-
+  bool showHintOverlay = true; // متغير للتحكم بعرض التلميح
   @override
   void dispose() {
-    // SoundManager.dispose();
     super.dispose();
   }
 
@@ -35,6 +36,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
       key: (e) => e,
       value: (_) => null,
     );
+    showHintOverlay = true; // إعادة عرض التلميح عند إعادة اللعبة
     setState(() {});
   }
 
@@ -48,6 +50,13 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
 
   bool isGameFinished() {
     return placedNumbers.values.every((element) => element != null);
+  }
+
+  // دالة لإخفاء التلميح
+  void _hideHintOverlay() {
+    setState(() {
+      showHintOverlay = false;
+    });
   }
 
   @override
@@ -188,6 +197,13 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
               ],
             ),
           ),
+          if (showHintOverlay)
+            GameHintOverlay(
+              hintText:
+                  "اسحب الأرقام وضعها في المكان الصحيح حسب الترتيب من ١ إلى ١٠",
+              hintAnimation: "assets/animations/baby girl.json",
+              onConfirm: _hideHintOverlay,
+            ),
         ],
       ),
     );

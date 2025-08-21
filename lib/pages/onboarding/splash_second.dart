@@ -52,8 +52,7 @@ class _SplashWorldScreenState extends State<SplashWorldScreen>
       ),
     ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    // تشغيل الصوت الترحيبي
-    // SoundManager.play('assets/sounds/hello_sound/الواجهة الأولى.mp3');
+    SoundManager.play('assets/sounds/hello_sound/الواجهة الأولى.mp3');
 
     // بدء تأثير النبض بشكل متكرر
     _controller.repeat(reverse: true);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
 
@@ -24,7 +25,6 @@ class SensesQuizPage extends StatefulWidget {
 }
 
 class _SensesQuizPageState extends State<SensesQuizPage> {
-  // قائمة الأسئلة مع التفاصيل (الصورة، النص، الخيارات، الإجابة الصحيحة)
   final List<Question> questions = [
     Question(
       imageAsset: 'assets/images/حواس/اختبار حواس/قوس.png',
@@ -57,12 +57,13 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
       correctAnswerIndex: 0,
     ),
   ];
-  bool showCongratsScreen = false;
-  int currentQuestionIndex = 0; // السؤال الحالي
-  int? selectedOptionIndex; // الخيار المختار
-  bool answered = false; // هل تم الإجابة على السؤال
 
-  // الانتقال للسؤال التالي أو عرض رسالة الانتهاء
+  bool showCongratsScreen = false;
+  int currentQuestionIndex = 0;
+  int? selectedOptionIndex;
+  bool answered = false;
+  bool showHint = true;
+
   void nextQuestion() {
     setState(() {
       selectedOptionIndex = null;
@@ -70,14 +71,11 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
       } else {
-        setState(() {
-          showCongratsScreen = true; // عرض شاشة الاحتفال بدلاً من AlertDialog
-        });
+        showCongratsScreen = true;
       }
     });
   }
 
-  // اختيار خيار والإعلام أن السؤال تم الإجابة عليه
   void selectOption(int index) {
     setState(() {
       selectedOptionIndex = index;
@@ -105,84 +103,92 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
             selectedOptionIndex = null;
             answered = false;
             showCongratsScreen = false;
+            showHint = true;
           });
         },
       );
     }
+
     final question = questions[currentQuestionIndex];
 
     return Scaffold(
-      // شفاف الخلفية عشان تظهر الصورة كاملة
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('اختبار الحواس'),
         centerTitle: true,
-        backgroundColor: Colors.transparent, // شفافية AppBar
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      extendBodyBehindAppBar: true, // لتمديد الخلفية تحت الـ AppBar
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // صورة الخلفية العنابية تغطي كل الشاشة
+          // الخلفية
           Positioned.fill(
             child: Image.asset(
               'assets/images/حواس/خلفية.jpeg',
               fit: BoxFit.cover,
             ),
           ),
-          // المحتوى فوق الخلفية
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Image.asset(question.imageAsset, height: 220),
-                const SizedBox(height: 20),
-                Text(
-                  question.questionText,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black, // نص أبيض يناسب الخلفية العنابية
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                // عرض الخيارات مع تلوين حسب الإجابة الصحيحة والخاطئة
-                ...List.generate(question.options.length, (index) {
-                  Color optionColor = Colors.blue.shade100.withOpacity(0.8);
-                  if (selectedOptionIndex != null) {
-                    // فقط إذا تم اختيار إجابة
-                    if (index == selectedOptionIndex) {
-                      // إذا كان هذا هو الخيار المختار
-                      optionColor =
-                          (index == question.correctAnswerIndex)
-                              ? Colors.green.shade300.withOpacity(
-                                0.8,
-                              ) // إذا كانت الإجابة صحيحة
-                              : Colors.red.shade300.withOpacity(
-                                0.8,
-                              ); // إذا كانت الإجابة خاطئة
-                    }
-                  }
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: optionColor,
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      onPressed: () => selectOption(index),
-                      child: Text(
-                        question.options[index],
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  );
-                }),
-                const Spacer(),
-              ],
+
+          // شاشة التلميح
+          // 👇 طبقة التلميح
+          if (showHint)
+            GameHintOverlay(
+              hintText: "استخدم الحواس لتتعرف على الصور 👁️👂👅👃✋",
+              hintAnimation: "assets/animations/baby girl.json",
+              onConfirm: () {
+                setState(() {
+                  showHint = false;
+                });
+              },
             ),
-          ),
+          // محتوى الأسئلة
+          if (!showHint)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Image.asset(question.imageAsset, height: 220),
+                  const SizedBox(height: 20),
+                  Text(
+                    question.questionText,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ...List.generate(question.options.length, (index) {
+                    Color optionColor = Colors.blue.shade100.withOpacity(0.8);
+                    if (selectedOptionIndex != null) {
+                      if (index == selectedOptionIndex) {
+                        optionColor =
+                            (index == question.correctAnswerIndex)
+                                ? Colors.green.shade300.withOpacity(0.8)
+                                : Colors.red.shade300.withOpacity(0.8);
+                      }
+                    }
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: optionColor,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        onPressed: () => selectOption(index),
+                        child: Text(
+                          question.options[index],
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    );
+                  }),
+                  const Spacer(),
+                ],
+              ),
+            ),
         ],
       ),
     );

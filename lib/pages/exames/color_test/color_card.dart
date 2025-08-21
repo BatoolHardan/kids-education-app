@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pro5/animations/game_hint.dart';
 
 class ColorQuiz extends StatefulWidget {
   const ColorQuiz({super.key});
@@ -22,6 +23,7 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
 
   int currentColorIndex = 0;
   String targetColor = 'red';
+  bool showHint = true;
 
   List<ColorItem> items = [];
   late AnimationController targetColorAnimationController;
@@ -313,6 +315,17 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
                 ),
               ],
             ),
+            // 👇 طبقة التلميح
+            if (showHint)
+              GameHintOverlay(
+                hintText: "🎨 اضغط على الدوائر واختر اللون المطلوب!",
+                hintAnimation: "assets/animations/baby girl.json",
+                onConfirm: () {
+                  setState(() {
+                    showHint = false;
+                  });
+                },
+              ),
           ],
         ),
       ),

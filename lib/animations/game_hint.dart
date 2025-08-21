@@ -42,16 +42,24 @@ class _GameHintOverlayState extends State<GameHintOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (_showHint)
-          Container(
-            color: Colors.black54,
-            child: Center(
+    if (!_showHint) return SizedBox.shrink(); // يخفي الواجهة كلياً
+
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black54,
+        child: Center(
+          child: AnimatedScale(
+            scale: _showHint ? 1.0 : 0.8,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeOutBack,
+            child: AnimatedOpacity(
+              opacity: _showHint ? 1.0 : 0.0,
+              duration: Duration(milliseconds: 500),
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
+                elevation: 8,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -95,7 +103,8 @@ class _GameHintOverlayState extends State<GameHintOverlay> {
               ),
             ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }

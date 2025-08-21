@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'dart:math';
 
 import 'package:get/get_core/src/get_main.dart';
+import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 
 class ShapeMatchingGame extends StatefulWidget {
@@ -70,7 +71,7 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
   final List<ConnectionLine> _connectionLines = [];
   int? _selectedShapeIndex;
   int? _selectedImageIndex;
-
+  bool showHint = true;
   // مفاتيح لتحديد موقع الصور والأشكال
   List<GlobalKey> _imageKeys = [];
   List<GlobalKey> _shapeKeys = [];
@@ -383,6 +384,21 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
                 ),
               ],
             ),
+            // 👇 شاشة التلميح كطبقة فوق اللعبة
+            if (showHint)
+              Positioned.fill(
+                child: GameHintOverlay(
+                  // hintText: "استخدم الحواس لتتعرف على الصور 👁️👂👅👃✋",
+                  hintText:
+                      "وصل الشكل الصحيح مع صورته المناسبة ✏️\n\nمثال: ◯ → 🔵",
+                  hintAnimation: "assets/animations/baby girl.json",
+                  onConfirm: () {
+                    setState(() {
+                      showHint = false; // يخفي التلميح ويبدأ اللعب
+                    });
+                  },
+                ),
+              ),
           ],
         ),
       ),

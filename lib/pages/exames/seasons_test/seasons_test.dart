@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pro5/animations/game_hint.dart';
 
 class DragDropSeasonsEnhanced extends StatefulWidget {
   const DragDropSeasonsEnhanced({super.key});
@@ -37,7 +38,7 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
   int wrongAttempts = 0;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-
+  bool showHint = true;
   @override
   void initState() {
     super.initState();
@@ -261,6 +262,19 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
               ),
             ],
           ),
+          // شاشة التلميح 👇
+          if (showHint)
+            Positioned.fill(
+              child: GameHintOverlay(
+                hintText: "اسحب صورة الفصل إلى مكانه الصحيح 🌸☀🍂❄",
+                hintAnimation: "assets/animations/baby girl.json",
+                onConfirm: () {
+                  setState(() {
+                    showHint = false; // يخفي التلميح ويبدأ اللعب
+                  });
+                },
+              ),
+            ),
           if (showCongrats)
             Container(
               color: Colors.black54,

@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
 
@@ -19,6 +20,7 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
   int _currentIndex = 0;
   int _correctMatches = 0;
   int _wrongAttempts = 0;
+  bool showHint = true;
 
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
@@ -243,85 +245,104 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
         title: Text('مطابقة المهن', style: TextStyle(fontFamily: 'Ghayaty')),
         backgroundColor: Colors.deepPurple,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          LinearProgressIndicator(
-            value: _correctMatches / _jobs.length,
-            backgroundColor: Colors.deepPurple[100],
-            valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
-          ),
-          Expanded(
-            child: Center(
-              child: DragTarget<ToolItem>(
-                onAcceptWithDetails:
-                    (details) => _handleMatch(currentJob, details.data),
-                builder: (ctx, candidate, rejected) {
-                  return SlideTransition(
-                    position: _jumpAnim,
-                    child: ScaleTransition(
-                      scale: _scaleAnim,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(currentJob.image, height: 250),
-                          SizedBox(height: 12),
-                          Text(
-                            currentJob.name,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontFamily: "Ghayaty",
-                            ),
+          Column(
+            children: [
+              LinearProgressIndicator(
+                value: _correctMatches / _jobs.length,
+                backgroundColor: Colors.deepPurple[100],
+                valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
+              ),
+              Expanded(
+                child: Center(
+                  child: DragTarget<ToolItem>(
+                    onAcceptWithDetails:
+                        (details) => _handleMatch(currentJob, details.data),
+                    builder: (ctx, candidate, rejected) {
+                      return SlideTransition(
+                        position: _jumpAnim,
+                        child: ScaleTransition(
+                          scale: _scaleAnim,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(currentJob.image, height: 250),
+                              SizedBox(height: 12),
+                              Text(
+                                currentJob.name,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontFamily: "Ghayaty",
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Container(
+                height: 160,
+                padding: EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple[50],
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      spreadRadius: 2,
                     ),
-                  );
+                  ],
+                ),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _allTools.length,
+                  itemBuilder: (ctx, index) => _buildToolCard(_allTools[index]),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Chip(
+                      label: Text(
+                        'المطابقات: $_correctMatches',
+                        style: TextStyle(fontFamily: 'Ghayaty'),
+                      ),
+                      backgroundColor: Colors.green[100],
+                    ),
+                    Chip(
+                      label: Text(
+                        'الأخطاء: $_wrongAttempts',
+                        style: TextStyle(fontFamily: 'Ghayaty'),
+                      ),
+                      backgroundColor: Colors.red[100],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // 👇 هنا ضيفي التلميح كطبقة تغطي الشاشة
+          if (showHint)
+            Positioned.fill(
+              child: GameHintOverlay(
+                hintText:
+                    "حاول أن تطابق الأداة مع المهنة المناسبة 👩‍🍳👨‍🌾👮‍♂️",
+                hintAnimation: "assets/animations/baby girl.json",
+                onConfirm: () {
+                  setState(() {
+                    showHint = false; // يخفي التلميح ويبدأ اللعب
+                  });
                 },
               ),
             ),
-          ),
-          Container(
-            height: 160,
-            padding: EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.deepPurple[50],
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _allTools.length,
-              itemBuilder: (ctx, index) => _buildToolCard(_allTools[index]),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Chip(
-                  label: Text(
-                    'المطابقات: $_correctMatches',
-                    style: TextStyle(fontFamily: 'Ghayaty'),
-                  ),
-                  backgroundColor: Colors.green[100],
-                ),
-                Chip(
-                  label: Text(
-                    'الأخطاء: $_wrongAttempts',
-                    style: TextStyle(fontFamily: 'Ghayaty'),
-                  ),
-                  backgroundColor: Colors.red[100],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
