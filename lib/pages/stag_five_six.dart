@@ -7,8 +7,10 @@ import 'package:pro5/animations/slidIn_card.dart';
 import 'package:pro5/pages/HisaDetail/six_data.dart';
 import 'package:pro5/pages/Profession/sample_data.dart';
 import 'package:pro5/pages/Seasons/seasons_page.dart';
+import 'package:pro5/pages/arabic_letters/letter_data.dart';
 import 'package:pro5/pages/exames/Hisa_test/sens_card.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
+import 'package:pro5/pages/learning_screen.dart';
 import 'package:pro5/pages/learnscreen2.dart';
 import 'package:pro5/pages/onboarding/custom_drawer.dart';
 import 'package:pro5/pages/onboarding/main_child_page.dart';
@@ -64,11 +66,11 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
       "page": SeasonsHomePage(),
     },
     {
-      "title": "اختبار الفصول",
-      "background": "assets/images/backgrounds/100.png",
+      "title": "الأشكال الهندسية",
+      "background": "assets/images/shapes/bac.jpeg",
       "color": Colors.blue,
-      "soundPath": "sounds/hello_sound/ترحيبي الاختبار.mp3",
-      "page": DragDropSeasonsEnhanced(),
+      "soundPath": "assets/sounds/hello_sound/الاشكال.mp3",
+      "page": LearningScreen(title: "الأشكال الهندسية", items: shapes),
     },
   ];
 

@@ -5,8 +5,11 @@ import 'package:pro5/animations/result_page.dart';
 import 'dart:math';
 
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class NumberDragDropGame extends StatefulWidget {
+  const NumberDragDropGame({super.key});
+
   @override
   _NumberDragDropGameState createState() => _NumberDragDropGameState();
 }
@@ -14,6 +17,7 @@ class NumberDragDropGame extends StatefulWidget {
 class _NumberDragDropGameState extends State<NumberDragDropGame> {
   final int itemCount = 10;
   final List<int> correctNumbers = List.generate(10, (i) => i + 1);
+  late TestScoreManager scoreNumber;
 
   late List<int> draggableNumbers;
   Map<int, int?> placedNumbers = {};
@@ -23,19 +27,21 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
     super.dispose();
   }
 
+  @override
   void initState() {
     super.initState();
     resetGame();
+    // scoreNumber = TestScoreManager(
+    //   totalQuestions=10,
+    //   testName: 'الأرقام',
+    //   gameName: "بتةل",
+    // );
   }
 
   void resetGame() {
     draggableNumbers = List.from(correctNumbers);
     draggableNumbers.shuffle(Random());
-    placedNumbers = Map.fromIterable(
-      correctNumbers,
-      key: (e) => e,
-      value: (_) => null,
-    );
+    placedNumbers = {for (var e in correctNumbers) e: null};
     showHintOverlay = true; // إعادة عرض التلميح عند إعادة اللعبة
     setState(() {});
   }
@@ -62,7 +68,8 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
   @override
   Widget build(BuildContext context) {
     if (isGameFinished()) {
-      Future.microtask(() {
+      Future.microtask(() async {
+        await scoreNumber.saveScore(); // حفظ العلامة في Firebase
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -101,7 +108,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   height: 140,
                   child: GridView.count(
                     crossAxisCount: 5,
@@ -130,7 +137,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
                                 alignment: Alignment.center,
                                 child: Text(
                                   filled
-                                      ? convertToArabicNumber(placed!)
+                                      ? convertToArabicNumber(placed)
                                       : convertToArabicNumber(number),
                                   style: TextStyle(
                                     fontSize: 22,
@@ -140,24 +147,28 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
                                 ),
                               );
                             },
-                            onWillAccept: (data) {
-                              bool isCorrect = data == number;
+                            onWillAcceptWithDetails: (details) {
+                              bool isCorrect = details.data == number;
                               if (!isCorrect) {
                                 WidgetsBinding.instance.addPostFrameCallback((
                                   _,
                                 ) {
                                   SoundManager.playRandomWrongSound();
+                                  scoreNumber.addWrong(); // خصم النقاط
                                 });
                               }
                               return isCorrect;
                             },
-                            onAccept: (data) async {
-                              if (data == number) {
+                            onAcceptWithDetails: (details) async {
+                              int draggedNumber =
+                                  details.data; // هكذا نحصل على الرقم
+                              if (draggedNumber == number) {
                                 await SoundManager.playRandomCorrectSound();
+                                scoreNumber.addCorrect(); // إضافة النقاط
                               }
                               setState(() {
-                                placedNumbers[number] = data;
-                                draggableNumbers.remove(data);
+                                placedNumbers[number] = draggedNumber;
+                                draggableNumbers.remove(draggedNumber);
                               });
                             },
                           );
@@ -167,7 +178,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
 
                 Spacer(),
 
-                Container(
+                SizedBox(
                   height: 140,
                   child: GridView.count(
                     crossAxisCount: 5,

@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/animations/game_hint.dart';
+import 'package:pro5/animations/pluse_seanso.dart';
+import 'package:pro5/animations/result_page.dart';
+import 'package:pro5/animations/sound_play.dart';
 
 class DragDropSeasonsEnhanced extends StatefulWidget {
   const DragDropSeasonsEnhanced({super.key});
@@ -39,15 +43,20 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   bool showHint = true;
+  bool showScrollHint = true; // لإظهار سهم التلميح
+
   @override
   void initState() {
     super.initState();
+
     seasons.shuffle();
 
+    // تهيئة الحالة لكل فصل
     for (var s in seasons) {
       placedCorrectly[s['name']!] = false;
     }
 
+    // ساعة اللعبة
     stopwatch = Stopwatch()..start();
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
@@ -55,14 +64,24 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
       });
     });
 
+    // أنيميشن السهم
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+    _pulseAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // إخفاء التلميح بعد 5 ثواني
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          showScrollHint = false;
+        });
+      }
+    });
   }
 
   @override
@@ -109,34 +128,34 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
           Column(
             children: [
               const SizedBox(height: 20),
-              SizedBox(
-                height: 130,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children:
-                      seasons.map((season) {
-                        // إظهار كل الصور الدوارة بدون حذف حتى بعد التثبيت
-                        return placedCorrectly[season['name']] == true
-                            ? Opacity(
-                              opacity: 0.5,
-                              child: buildSeasonImage(season['image']!),
-                            )
-                            : Draggable<String>(
-                              data: season['name'],
-                              feedback: buildSeasonImage(
-                                season['image']!,
-                                scale: 1.2,
-                              ),
-                              childWhenDragging: buildSeasonImage(
-                                season['image']!,
-                                opacity: 0.5,
-                              ),
-                              child: buildSeasonImage(season['image']!),
-                            );
-                      }).toList(),
-                ),
+              PulseSeasonDragSelector(
+                seasons: [
+                  {
+                    'name': 'الربيع',
+                    'image': 'assets/images/الفصول الأربعة/ربيع.jpg',
+                  },
+                  {
+                    'name': 'الصيف',
+                    'image': 'assets/images/الفصول الأربعة/صيف.jpg',
+                  },
+                  {
+                    'name': 'الخريف',
+                    'image': 'assets/images/الفصول الأربعة/خريف.jpg',
+                  },
+                  {
+                    'name': 'الشتاء',
+                    'image': 'assets/images/الفصول الأربعة/شتاء.jpg',
+                  },
+                ],
+                onDrop: (season, correct) {
+                  if (correct) {
+                    print('$season تم سحبه بشكل صحيح!');
+                  } else {
+                    print('$season تم سحبه بشكل خاطئ.');
+                  }
+                },
               ),
+
               const SizedBox(height: 40),
               Expanded(
                 child: GridView.count(
@@ -149,7 +168,6 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                         final name = season['name']!;
                         final accepted = placedCorrectly[name]!;
                         final baseColor = seasonColors[name]!;
-
                         return DragTarget<String>(
                           builder: (context, candidateData, rejectedData) {
                             return AnimatedBuilder(
@@ -164,7 +182,7 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                                 duration: const Duration(milliseconds: 400),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: baseColor, // لون ثابت دائماً
+                                  color: baseColor,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black26,
@@ -205,14 +223,25 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                               ),
                             );
                           },
+
+                          // ما نحسب أخطاء هنا
+                          onWillAcceptWithDetails: (details) {
+                            return true; // نقبل محاولة السحب ونفحص لاحقاً عند الإفلات
+                          },
+
+                          // هون الحساب
                           onAcceptWithDetails: (details) {
-                            if (!placedCorrectly[name]!) {
+                            if (details.data == name &&
+                                !placedCorrectly[name]!) {
                               setState(() => placedCorrectly[name] = true);
+                              SoundManager.playRandomCorrectSound();
+
                               if (placedCorrectly.values.every((v) => v)) {
                                 stopwatch.stop();
                                 timer.cancel();
                                 setState(() => showCongrats = true);
                               }
+
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
@@ -221,14 +250,9 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                                   backgroundColor: Colors.green,
                                 ),
                               );
-                            }
-                          },
-
-                          onLeave: (data) {
-                            if (data != name && !placedCorrectly[name]!) {
-                              setState(
-                                () => wrongAttempts = wrongAttempts + 1,
-                              ); // زيادة العداد فقط عند الخطأ
+                            } else {
+                              setState(() => wrongAttempts++);
+                              SoundManager.playRandomWrongSound();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -275,42 +299,16 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                 },
               ),
             ),
+          // شاشة التهنئة
           if (showCongrats)
-            Container(
-              color: Colors.black54,
-              alignment: Alignment.center,
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 40),
-                color: Colors.white,
-                elevation: 8,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Lottie.asset(
-                        'assets/stars.json',
-                        width: 150,
-                        height: 150,
-                        repeat: false,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'مبروك! لقد أنهيت اللعبة بنجاح 🎉',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: resetGame,
-                        child: const Text('العب مرة أخرى'),
-                      ),
-                    ],
-                  ),
-                ),
+            Positioned.fill(
+              child: ResultScreen(
+                animationPath: 'assets/animations/baloon.json',
+                congratsImagePath: 'assets/rewards/انت متميز.png',
+                onRestart: () {
+                  resetGame();
+                  setState(() => showCongrats = false);
+                },
               ),
             ),
         ],

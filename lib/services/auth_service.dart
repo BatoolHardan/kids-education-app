@@ -52,7 +52,7 @@ class AuthController extends GetxController {
         'gender': gender,
         'gamesCompleted': 0,
         'starsEarned': 0,
-        'favoriteSection': '',
+        'testGame': '',
         'createdAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {

@@ -6,6 +6,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class JobsMatchingGame extends StatefulWidget {
   const JobsMatchingGame({super.key});
@@ -21,7 +22,7 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
   int _correctMatches = 0;
   int _wrongAttempts = 0;
   bool showHint = true;
-
+  late TestScoreManager scoreProf;
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
   late List<ToolItem> _allTools;
@@ -114,6 +115,12 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
   @override
   void initState() {
     super.initState();
+    scoreProf = TestScoreManager(
+      _jobs.length, // إجمالي عدد الأسئلة
+      testName: "JobsMatchingGame",
+      gameName: 'المهن', // اسم الاختبار
+    );
+    scoreProf.reset();
     _animController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 600),
@@ -159,11 +166,14 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
   void _handleMatch(JobItem job, ToolItem tool) async {
     if (tool.name == job.tool.name) {
       setState(() {
+        // ✅ زيادة العلامة عند الإجابة الصحيحة
+        scoreProf.addCorrect();
         _correctMatches++;
       });
-
+      //
       SoundManager.playRandomCorrectSound();
 
+      scoreProf.addWrong();
       _animController.forward().then((_) {
         _animController.reverse();
       });
@@ -176,7 +186,8 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
         _showNextTool();
       } else {
         // انتقل فورًا بدون انتظار الصوت أو الانيميشن
-        Future.delayed(Duration(milliseconds: 300), () {
+        Future.delayed(Duration(milliseconds: 300), () async {
+          await scoreProf.saveScore(); // حفظ العلامة في Firebase
           Get.to(
             () => ResultScreen(
               animationPath: 'assets/animations/fly baloon slowly.json',
