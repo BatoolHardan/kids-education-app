@@ -191,6 +191,7 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
             // استخدمي GetX لفتح ResultScreen
             Get.to(
               () => ResultScreen(
+                result: 0,
                 animationPath: 'assets/animations/Star Success.json',
                 congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
                 onRestart: _resetGame,

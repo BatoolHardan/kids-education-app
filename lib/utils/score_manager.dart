@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TestScoreManager {
-  double score = 0.0;
+  double scoreTrue = 0.0;
+  double scoreFalse=0.0;
+  double finalScour=0.0;
   final int totalQuestions;
   final String testName;
   final String gameName; // اسم اللعبة
@@ -20,20 +22,26 @@ class TestScoreManager {
   double get stepValue => 10 / totalQuestions;
 
   void reset() {
-    score = 0.0;
+    scoreTrue = 0.0;
+     scoreFalse=0.0;
   }
 
   void addCorrect() {
-    score += stepValue;
-    if (score > 10) score = 10;
+    scoreTrue += stepValue;
+   // if (score > 10) score = 10;
   }
 
   void addWrong() {
-    score -= stepValue;
-    if (score < 0) score = 0;
+    scoreFalse += stepValue;
+   // if (score < 0) score = 0;
   }
 
-  double get currentScore => double.parse(score.toStringAsFixed(1));
+  double get currentScore {
+    finalScour=scoreTrue-scoreFalse;
+    if(finalScour>10)  finalScour=10;
+    if(finalScour<0)  finalScour=0;
+    return double.parse(finalScour.toStringAsFixed(1)); 
+  }
   Future<bool> saveScore() async {
     try {
       final user = _auth.currentUser;

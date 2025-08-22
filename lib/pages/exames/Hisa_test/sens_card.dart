@@ -95,6 +95,7 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
   Widget build(BuildContext context) {
     if (showCongratsScreen) {
       return ResultScreen(
+        result: 0,
         animationPath: 'assets/animations/heart_fly.json',
         congratsImagePath: 'assets/rewards/انت متميز.png',
         onRestart: () {
