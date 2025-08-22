@@ -156,6 +156,7 @@ class _ExamScreenState extends State<ExamScreen> {
 
                                       await Get.to(
                                         () => ResultScreen(
+                                          result: 0,
                                           animationPath:
                                               'assets/animations/baloon_fly and star.json',
                                           congratsImagePath:

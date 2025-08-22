@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
@@ -21,13 +22,12 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
   int _correctMatches = 0;
   int _wrongAttempts = 0;
   bool showHint = true;
-  bool _isGameFinished = false;
   late TestScoreManager scoreProf;
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
   late List<ToolItem> _allTools;
   late Animation<Offset> _jumpAnim;
-
+  final int _toolIndex = 0;
   final List<JobItem> _jobs = [
     JobItem(
       name: 'الطّباخ',
@@ -110,15 +110,15 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
         sound: 'sounds/doctor_tool.mp3',
       ),
     ),
+    // باقي المهن بنفس الطريقة مع تصحيح المسارات
   ];
-
   @override
   void initState() {
     super.initState();
     scoreProf = TestScoreManager(
-      _jobs.length,
+      _jobs.length, // إجمالي عدد الأسئلة
       testName: "JobsMatchingGame",
-      gameName: 'المهن',
+      gameName: 'المهن', // اسم الاختبار
     );
     scoreProf.reset();
     _animController = AnimationController(
@@ -128,19 +128,24 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
     _scaleAnim = Tween<double>(begin: 1, end: 1.2).animate(
       CurvedAnimation(parent: _animController, curve: Curves.elasticInOut),
     );
-    _jumpAnim = Tween<Offset>(begin: Offset.zero, end: Offset(0, -0.1)).animate(
+    _jumpAnim = Tween<Offset>(
+      begin: Offset.zero,
+      end: Offset(0, -0.1), // يقفز لفوق
+    ).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
 
+    // اجمع الأدوات وخلطهم مرة ببداية اللعبة
     _allTools = _jobs.map((j) => j.tool).toList()..shuffle();
     _showNextTool();
   }
 
   void _showNextTool() {
-    if (_currentIndex >= _jobs.length || _isGameFinished) return;
+    if (_currentIndex >= _jobs.length) return;
 
     final correctTool = _jobs[_currentIndex].tool;
 
+    // اختار 2 أداة عشوائية من باقي الأدوات
     final otherTools =
         _jobs
             .map((j) => j.tool)
@@ -152,30 +157,54 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
       _allTools = [correctTool, otherTools[0], otherTools[1]]..shuffle();
     });
 
+    // بعد 5 ثواني يبدل الأدوات إذا الطفل ما جرّب
     Future.delayed(Duration(seconds: 5), () {
-      if (mounted && !_isGameFinished) _showNextTool();
+      if (mounted) _showNextTool();
     });
   }
 
   void _handleMatch(JobItem job, ToolItem tool) async {
-    if (_isGameFinished) return;
-
     if (tool.name == job.tool.name) {
       setState(() {
+        // ✅ زيادة العلامة عند الإجابة الصحيحة
         scoreProf.addCorrect();
         _correctMatches++;
       });
+      //
       SoundManager.playRandomCorrectSound();
-      _animController.forward().then((_) => _animController.reverse());
-    } else {
-      setState(() {
-        scoreProf.addWrong();
-        _wrongAttempts++;
+
+      //scoreProf.addWrong();
+      _animController.forward().then((_) {
+        _animController.reverse();
       });
+
+      if (_currentIndex < _jobs.length - 1) {
+        setState(() {
+          _currentIndex++;
+          _allTools = _generateToolsForCurrentJob();
+        });
+        _showNextTool();
+      } else {
+        // انتقل فورًا بدون انتظار الصوت أو الانيميشن
+        Future.delayed(Duration(milliseconds: 300), () async {
+          await scoreProf.saveScore(); // حفظ العلامة في Firebase
+          Get.to(
+            () => ResultScreen(
+              result: scoreProf.finalScour,
+              animationPath: 'assets/animations/fly baloon slowly.json',
+              congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+              onRestart: _restartGame,
+            ),
+          );
+        });
+      }
+    } else {
+      scoreProf.addWrong();
+      setState(() => _wrongAttempts++);
       SoundManager.playRandomWrongSound();
       HapticFeedback.mediumImpact();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
               Icon(Icons.warning, color: Colors.white),
@@ -184,54 +213,23 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
             ],
           ),
           backgroundColor: Colors.orange,
-          duration: Duration(seconds: 1),
         ),
       );
     }
-
-    _goToNextOrFinish();
   }
 
-  void _goToNextOrFinish() {
-    // ✅ التحقق إذا وصلنا لآخر سؤال
-    if (_currentIndex + 1 < _jobs.length) {
-      setState(() {
-        _currentIndex++;
-        _allTools = _generateToolsForCurrentJob();
-      });
-      _showNextTool();
-    } else {
-      // ✅ وصلنا لآخر سؤال - عرض شاشة التهنية
-      setState(() {
-        _isGameFinished = true;
-      });
-
-      Future.delayed(const Duration(milliseconds: 500), () async {
-        await scoreProf.saveScore();
-
-        Get.to(
-          () => ResultScreen(
-            animationPath: 'assets/animations/fly baloon slowly.json',
-            congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
-            onRestart: _restartGame,
-          ),
-        );
-      });
-    }
-  }
-
+  // دالة لإعادة اللعبة
   void _restartGame() {
     setState(() {
       _currentIndex = 0;
       _correctMatches = 0;
       _wrongAttempts = 0;
-      _isGameFinished = false;
       _allTools = _generateToolsForCurrentJob();
+      _showNextTool();
     });
-    scoreProf.reset();
-    _showNextTool();
   }
 
+  // مثال لتوليد أدوات جديدة: صح + 2 عشوائية
   List<ToolItem> _generateToolsForCurrentJob() {
     final correctTool = _jobs[_currentIndex].tool;
     final otherTools =
@@ -252,13 +250,6 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
 
   @override
   Widget build(BuildContext context) {
-    if (_isGameFinished) {
-      return Scaffold(
-        backgroundColor: Colors.grey[100],
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     final currentJob = _jobs[_currentIndex];
 
     return Scaffold(
@@ -351,6 +342,7 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
             ],
           ),
 
+          // 👇 هنا ضيفي التلميح كطبقة تغطي الشاشة
           if (showHint)
             Positioned.fill(
               child: GameHintOverlay(
@@ -359,7 +351,7 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
                 hintAnimation: "assets/animations/baby girl.json",
                 onConfirm: () {
                   setState(() {
-                    showHint = false;
+                    showHint = false; // يخفي التلميح ويبدأ اللعب
                   });
                 },
               ),
@@ -371,10 +363,9 @@ class _JobsMatchingGameState extends State<JobsMatchingGame>
 
   Widget _buildToolCard(ToolItem tool) {
     return Draggable<ToolItem>(
-      data: tool,
+      data: tool, // ⚡ استخدم الأداة الحالية من _allTools
       feedback: _ToolWidget(tool, isDragging: true),
-      childWhenDragging: Container(),
-      child: _ToolWidget(tool, isDragging: false),
+      child: _ToolWidget(tool, isDragging: true),
     );
   }
 }
@@ -403,7 +394,7 @@ class _ToolWidgetState extends State<_ToolWidget>
 
     _offsetAnim = Tween<Offset>(
       begin: Offset(0, 0),
-      end: Offset(0, -0.05),
+      end: Offset(0, -0.05), // تهز لفوق شوي
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -438,7 +429,7 @@ class _ToolWidgetState extends State<_ToolWidget>
               style: TextStyle(
                 fontFamily: 'Ghayaty',
                 color: widget.isDragging ? Colors.deepPurple : Colors.black,
-                fontSize: widget.isDragging ? 14 : 12,
+                fontSize: widget.isDragging ? 14 : 12, // فرق بسيط فقط
               ),
             ),
           ],

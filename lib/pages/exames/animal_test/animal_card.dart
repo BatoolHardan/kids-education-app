@@ -158,6 +158,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
 
     if (showCongratsScreen) {
       return ResultScreen(
+        result: 0,
         animationPath: 'assets/animations/baloon_fly and star.json',
         congratsImagePath: 'assets/rewards/انت متميز.png',
         onRestart: () {

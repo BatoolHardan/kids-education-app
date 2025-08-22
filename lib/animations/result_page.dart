@@ -6,12 +6,13 @@ class ResultScreen extends StatelessWidget {
   final String animationPath;
   final String congratsImagePath;
   final VoidCallback onRestart;
+  final double result;
 
   const ResultScreen({
     super.key,
     required this.animationPath,
     required this.congratsImagePath,
-    required this.onRestart,
+    required this.onRestart, required this.result,
   });
 
   @override
@@ -20,6 +21,7 @@ class ResultScreen extends StatelessWidget {
       animationPath: animationPath,
       congratsImagePath: congratsImagePath,
       onRestart: onRestart,
+      result: result,
     );
   }
 }
@@ -28,12 +30,13 @@ class _ResultScreenBody extends StatefulWidget {
   final String animationPath;
   final String congratsImagePath;
   final VoidCallback onRestart;
+  final result;
 
   const _ResultScreenBody({
     super.key,
     required this.animationPath,
     required this.congratsImagePath,
-    required this.onRestart,
+    required this.onRestart, this.result,
   });
 
   @override
@@ -65,6 +68,9 @@ class _ResultScreenBodyState extends State<_ResultScreenBody> {
                 children: [
                   Image.asset(widget.congratsImagePath, width: 250),
                   const SizedBox(height: 20),
+                  Text('نتيجتك:'),
+                   Text(widget.result.toStringAsFixed(1)),
+                   const SizedBox(height: 20),
                   CustomButton(
                     text: 'إعادة اللعب',
                     color: Colors.purpleAccent,

@@ -75,6 +75,7 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
           MaterialPageRoute(
             builder:
                 (context) => ResultScreen(
+                  result: 0,
                   animationPath: 'assets/animations/baloon_fly yellow.json',
                   congratsImagePath: 'assets/rewards/بارك الله فيك.png',
                   onRestart: () {

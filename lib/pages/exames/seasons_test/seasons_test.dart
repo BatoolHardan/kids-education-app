@@ -303,6 +303,7 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
           if (showCongrats)
             Positioned.fill(
               child: ResultScreen(
+                result: 0,
                 animationPath: 'assets/animations/baloon.json',
                 congratsImagePath: 'assets/rewards/انت متميز.png',
                 onRestart: () {
