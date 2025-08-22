@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class MemoryGameScreen extends StatefulWidget {
   const MemoryGameScreen({super.key});
@@ -42,10 +45,16 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
   bool showLikeAnimation = false; // متغير جديد
 
   AudioPlayer player = AudioPlayer();
-
+  late TestScoreManager scoreAnimal;
   @override
   void initState() {
     super.initState();
+    scoreAnimal = TestScoreManager(
+      images.length, // إجمالي عدد الأسئلة
+      testName: "JobsMatchingGame",
+      gameName: 'المهن', // اسم الاختبار
+    );
+    scoreAnimal.reset();
     debugPrint = (String? message, {int? wrapWidth}) {
       if (message != null) {
         print('[DEBUG] ${DateTime.now()}: $message');
@@ -95,6 +104,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
           cards[second]['matched'] = true;
           score++;
           showLikeAnimation = true;
+          scoreAnimal.addCorrect();
         });
         Timer(const Duration(seconds: 3), () {
           if (mounted) {
@@ -157,17 +167,18 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     }
 
     if (showCongratsScreen) {
-      return ResultScreen(
-        result: 0,
-        animationPath: 'assets/animations/baloon_fly and star.json',
-        congratsImagePath: 'assets/rewards/انت متميز.png',
-        onRestart: () {
-          _initializeCards();
-          setState(() {
-            showCongratsScreen = false;
-          });
-        },
-      );
+      // انتقل فورًا بدون انتظار الصوت أو الانيميشن
+      Future.delayed(Duration(milliseconds: 300), () async {
+        await scoreAnimal.saveScore(); // حفظ العلامة في Firebase
+        Get.to(
+          () => ResultScreen(
+            result: scoreAnimal.finalScour,
+            animationPath: 'assets/animations/fly baloon slowly.json',
+            congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+            onRestart: () {},
+          ),
+        );
+      });
     }
 
     return Scaffold(
