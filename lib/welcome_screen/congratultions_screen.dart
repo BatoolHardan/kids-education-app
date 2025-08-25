@@ -1,77 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:pro5/welcome_screen/congratultions_model.dart';
-import 'welcome_data.dart';
+import 'package:lottie/lottie.dart';
 
-class CongratulationsScreen extends StatelessWidget {
-  final List<CongratulationsModel> stages;
-  final int stageIndex;
+class StageCompleteScreen extends StatelessWidget {
+  final String stageName; // اسم المرحلة (مثل: الحروف، الأرقام)
+  final VoidCallback onNextStage; // دالة للانتقال للمرحلة التالية
+  final String animationPath; // مسار الأنيميشن (اختياري)
 
-  const CongratulationsScreen({
+  const StageCompleteScreen({
     super.key,
-    required this.stages,
-    required this.stageIndex,
+    required this.stageName,
+    required this.onNextStage,
+    this.animationPath = 'assets/animations/party.json',
   });
 
   @override
   Widget build(BuildContext context) {
-    final stage = stages[stageIndex];
-
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          color: stage.backgroundColor,
-          image:
-              stage.backgroundImagePath != null
-                  ? DecorationImage(
-                    image: AssetImage(stage.backgroundImagePath!),
-                    fit: BoxFit.cover,
-                  )
-                  : null,
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(stage.imagePath, height: 250),
-              const SizedBox(height: 20),
-              Text(
-                stage.title,
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+      backgroundColor: Colors.yellow[50],
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 🎉 أنيميشن تشجيعي
+                Lottie.asset(
+                  animationPath,
+                  width: 250,
+                  height: 250,
+                  repeat: false,
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                stage.subtitle,
-                style: const TextStyle(fontSize: 20, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  // مثال: الانتقال للمرحلة التالية أو الرجوع للرئيسية
-                  if (stageIndex < stages.length - 1) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => CongratulationsScreen(
-                              stages: stages,
-                              stageIndex: stageIndex + 1,
-                            ),
-                      ),
-                    );
-                  } else {
-                    Navigator.pop(context); // أو أي شاشة رئيسية
-                  }
-                },
-                child: Text(stage.buttonText),
-              ),
-            ],
+                const SizedBox(height: 20),
+                // نص تهنئة
+                Text(
+                  'أحسنت! لقد أكملت مرحلة $stageName 🎉',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange[800],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                // زر الانتقال للمرحلة التالية
+                ElevatedButton(
+                  onPressed: onNextStage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text(
+                    'الانتقال للمرحلة التالية',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

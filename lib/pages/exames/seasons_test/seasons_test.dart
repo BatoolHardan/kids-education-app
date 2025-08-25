@@ -6,6 +6,7 @@ import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/pluse_seanso.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class DragDropSeasonsEnhanced extends StatefulWidget {
   const DragDropSeasonsEnhanced({super.key});
@@ -34,12 +35,14 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
   Map<String, bool> placedCorrectly = {};
   int attempts = 0;
   bool showCongrats = false;
+  late TestScoreManager scoreSeas; // لإدارة النقاط
+  int correctAttempts = 0; // عدد الصور الصحيحة
+  int wrongAttempts = 0; // عدد الأخطاء
 
   late Stopwatch stopwatch;
   late Timer timer;
   String elapsed = "00:00";
-  int correctAttempts = 0;
-  int wrongAttempts = 0;
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   bool showHint = true;
@@ -48,6 +51,12 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
   @override
   void initState() {
     super.initState();
+    scoreSeas = TestScoreManager(
+      seasons.length,
+      testName: 'SeasonsMatchingGame',
+      gameName: 'الألوان والفصول',
+    );
+    scoreSeas.reset();
 
     seasons.shuffle();
 
@@ -103,7 +112,11 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
       }
       attempts = 0;
       showCongrats = false;
-      wrongAttempts = 0; // إعادة تعيين الأخطاء
+
+      scoreSeas.reset();
+      correctAttempts = 0;
+      wrongAttempts = 0;
+      // إعادة تعيين الأخطاء
       stopwatch.reset();
       stopwatch.start();
       timer.cancel();
@@ -233,12 +246,19 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                           onAcceptWithDetails: (details) {
                             if (details.data == name &&
                                 !placedCorrectly[name]!) {
-                              setState(() => placedCorrectly[name] = true);
+                              setState(() {
+                                placedCorrectly[name] = true;
+                                correctAttempts++;
+                                scoreSeas
+                                    .addCorrect(); // زيادة النقاط عند الصحيح
+                              });
                               SoundManager.playRandomCorrectSound();
 
                               if (placedCorrectly.values.every((v) => v)) {
                                 stopwatch.stop();
                                 timer.cancel();
+                                scoreSeas
+                                    .saveScore(); // حفظ النقاط عند انتهاء اللعبة
                                 setState(() => showCongrats = true);
                               }
 
@@ -251,7 +271,10 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                                 ),
                               );
                             } else {
-                              setState(() => wrongAttempts++);
+                              setState(() {
+                                wrongAttempts++;
+                                scoreSeas.addWrong(); // حساب الخطأ
+                              });
                               SoundManager.playRandomWrongSound();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -272,6 +295,14 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                 child: Column(
                   children: [
                     Text(
+                      'عدد المطابقات: $correctAttempts',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    Text(
                       'عدد الأخطاء: $wrongAttempts',
                       style: TextStyle(
                         fontSize: 20,
@@ -279,7 +310,6 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
                         color: Colors.red,
                       ),
                     ),
-                    SizedBox(height: 10),
                     Text('الوقت: $elapsed', style: TextStyle(fontSize: 18)),
                   ],
                 ),
@@ -303,7 +333,7 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
           if (showCongrats)
             Positioned.fill(
               child: ResultScreen(
-                result: 0,
+                result: scoreSeas.finalScour,
                 animationPath: 'assets/animations/baloon.json',
                 congratsImagePath: 'assets/rewards/انت متميز.png',
                 onRestart: () {
@@ -313,31 +343,6 @@ class _DragDropSeasonsEnhancedState extends State<DragDropSeasonsEnhanced>
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget buildSeasonImage(String path, {double scale = 1, double opacity = 1}) {
-    return Transform.scale(
-      scale: scale,
-      child: Opacity(
-        opacity: opacity,
-        child: Container(
-          width: 100,
-          height: 100,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
-            borderRadius: BorderRadius.circular(16),
-            image: DecorationImage(image: AssetImage(path), fit: BoxFit.cover),
-          ),
-        ),
       ),
     );
   }

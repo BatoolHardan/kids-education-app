@@ -6,7 +6,9 @@ import 'package:pro5/pages/exames/Hisa_test/sens_card.dart';
 import 'package:pro5/pages/exames/Shapes/shapes_quiz_screen.dart';
 import 'package:pro5/pages/exames/animal_test/animal_card.dart';
 import 'package:pro5/pages/exames/color_test/color_card.dart';
-import 'package:pro5/pages/exames/letters/exam_card.dart';
+
+import 'package:pro5/pages/exames/letters/letter_questions.dart';
+import 'package:pro5/pages/exames/letters/letter_quiz.dart';
 import 'package:pro5/pages/exames/number_test/numbe_card.dart';
 import 'package:pro5/pages/exames/professions/professions_test.dart';
 import 'package:pro5/pages/exames/seasons_test/seasons_test.dart';
@@ -42,7 +44,7 @@ class _TestsScreenState extends State<TestsScreen> {
       "title": "الأحرف",
       "image": "assets/images/واجهة الاختبارات/حروف.png",
       "borderColor": Colors.red,
-      "page": ExamScreen(),
+      "page": LetterQuizScreen(questions: letterQuestions),
       "sound": "sounds/hello_sound/hello_letters.mp3",
     },
     {
