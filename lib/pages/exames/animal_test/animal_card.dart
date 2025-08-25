@@ -52,7 +52,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     scoreAnimal = TestScoreManager(
       images.length, // إجمالي عدد الأسئلة
       testName: "JobsMatchingGame",
-      gameName: 'المهن', // اسم الاختبار
+      gameName: 'الحيوانات', // اسم الاختبار
     );
     scoreAnimal.reset();
     debugPrint = (String? message, {int? wrapWidth}) {

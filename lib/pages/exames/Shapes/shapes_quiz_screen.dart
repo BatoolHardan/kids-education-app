@@ -79,13 +79,14 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
   int _wrongMatches = 0;
   @override
   void initState() {
+    super.initState();
     scoreShape = TestScoreManager(
       _originalItems.length, // إجمالي عدد الأسئلة
       testName: "ShapeMatchingGame ",
       gameName: 'الأشكال', // اسم الاختبار
     );
     scoreShape.reset();
-    super.initState();
+
     _initializeGame();
   }
 
@@ -190,27 +191,30 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
         _matchedItems[realShapeIndex] = true;
         scoreShape.addCorrect();
         _correctMatches++; // زيادة عدد المطابقات الصحيحة
-
-        // تحقق إذا كانت كل العناصر مطابقة
-
-        if (_matchedItems.every((matched) => matched)) {
-          Future.delayed(const Duration(milliseconds: 300), () async {
-            // انتقل فورًا بدون انتظار الصوت أو الانيميشن
-
-            await scoreShape.saveScore(); // حفظ العلامة في Firebase
-            // استخدمي GetX لفتح ResultScreen
-            Get.to(
-              () => ResultScreen(
-                result: scoreShape.finalScour,
-                animationPath: 'assets/animations/Star Success.json',
-                congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
-                onRestart: _resetGame,
-              ),
-            );
-          });
-        }
       });
+
+      // تحقق إذا كانت كل العناصر مطابقة
+      if (_matchedItems.every((matched) => matched)) {
+        Future.delayed(const Duration(milliseconds: 300), () async {
+          try {
+            await scoreShape.saveScore(); // تأكد من نجاح الحفظ
+            if (mounted) {
+              Get.to(
+                () => ResultScreen(
+                  result: scoreShape.finalScour, // صححي الاسم
+                  animationPath: 'assets/animations/Star Success.json',
+                  congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+                  onRestart: _resetGame,
+                ),
+              );
+            }
+          } catch (e) {
+            print("Error saving score: $e");
+          }
+        });
+      }
     } else {
+      scoreShape.addWrong();
       SoundManager.playRandomWrongSound();
       setState(() {
         _wrongMatches++; // زيادة عدد الأخطاء
