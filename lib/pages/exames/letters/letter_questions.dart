@@ -1,3 +1,5 @@
+import 'dart:math';
+
 final List<Map<String, dynamic>> letterQuestions = [
   {
     'image': 'assets/images/letter&numbers/letters/أسد.png',
@@ -168,3 +170,20 @@ final List<Map<String, dynamic>> letterQuestions = [
     'correct_answer': 'ي',
   },
 ];
+
+/// دالة ترجع نسخة جديدة من الليست مع خلط الخيارات
+List<Map<String, dynamic>> getShuffledQuestions() {
+  final random = Random();
+  return letterQuestions.map((q) {
+    // ننسخ الليست ونخلطها
+    final options = List<String>.from(q['options']);
+    options.shuffle(random);
+
+    return {
+      'image': q['image'],
+      'word': q['word'],
+      'options': options,
+      'correct_answer': q['correct_answer'],
+    };
+  }).toList();
+}

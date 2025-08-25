@@ -39,7 +39,7 @@ class _LetterQuizScreenState extends State<LetterQuizScreen>
     super.initState();
 
     scoreLetter = TestScoreManager(
-      widget.questions.length,
+      10,
       testName: "LetterQuiz",
       gameName: 'الأحرف العربية',
     );

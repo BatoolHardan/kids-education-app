@@ -44,7 +44,7 @@ class _TestsScreenState extends State<TestsScreen> {
       "title": "الأحرف",
       "image": "assets/images/واجهة الاختبارات/حروف.png",
       "borderColor": Colors.red,
-      "page": LetterQuizScreen(questions: letterQuestions),
+      "page": LetterQuizScreen(questions: getShuffledQuestions()),
       "sound": "sounds/hello_sound/hello_letters.mp3",
     },
     {
