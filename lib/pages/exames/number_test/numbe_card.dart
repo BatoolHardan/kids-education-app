@@ -18,7 +18,8 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
   final int itemCount = 10;
   final List<int> correctNumbers = List.generate(10, (i) => i + 1);
   late TestScoreManager scoreNumber;
-
+  int matches = 0; // ✅ عدد المطابقات
+  int mistakes = 0; // ❌ عدد الأخطاء
   late List<int> draggableNumbers;
   Map<int, int?> placedNumbers = {};
   bool showHintOverlay = true; // متغير للتحكم بعرض التلميح
@@ -30,12 +31,13 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
   @override
   void initState() {
     super.initState();
+    scoreNumber = TestScoreManager(
+      correctNumbers.length, // عدد الأسئلة (١٠ أرقام)
+      testName: 'NumbersMatchingGame',
+      gameName: "الأرقام",
+    );
+    scoreNumber.reset();
     resetGame();
-    // scoreNumber = TestScoreManager(
-    //   totalQuestions=10,
-    //   testName: 'الأرقام',
-    //   gameName: "بتةل",
-    // );
   }
 
   void resetGame() {
@@ -43,6 +45,8 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
     draggableNumbers.shuffle(Random());
     placedNumbers = {for (var e in correctNumbers) e: null};
     showHintOverlay = true; // إعادة عرض التلميح عند إعادة اللعبة
+    matches = 0; // إعادة التصفير
+    mistakes = 0;
     setState(() {});
   }
 
@@ -69,12 +73,14 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
   Widget build(BuildContext context) {
     if (isGameFinished()) {
       Future.microtask(() async {
-        await scoreNumber.saveScore(); // حفظ العلامة في Firebase
+        await scoreNumber.saveScore(); // ✅ حفظ النتيجة
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder:
                 (context) => ResultScreen(
+                  x: 1,
+                  result: scoreNumber.finalScour, // 🔥 عرض النتيجة الحقيقية
                   animationPath: 'assets/animations/baloon_fly yellow.json',
                   congratsImagePath: 'assets/rewards/بارك الله فيك.png',
                   onRestart: () {
@@ -83,11 +89,9 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
                 ),
           ),
         ).then((_) {
-          // بعد رجوعنا من شاشة النتائج، نعيد تهيئة اللعبة
           resetGame();
         });
       });
-
       return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -148,28 +152,29 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
                               );
                             },
                             onWillAcceptWithDetails: (details) {
-                              bool isCorrect = details.data == number;
-                              if (!isCorrect) {
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  SoundManager.playRandomWrongSound();
-                                  scoreNumber.addWrong(); // خصم النقاط
-                                });
-                              }
-                              return isCorrect;
+                              // ✅ دايمًا نقبل السحب، القرار يكون عند الإفلات
+                              return true;
                             },
                             onAcceptWithDetails: (details) async {
-                              int draggedNumber =
-                                  details.data; // هكذا نحصل على الرقم
+                              int draggedNumber = details.data;
+
                               if (draggedNumber == number) {
+                                // ✅ صح
                                 await SoundManager.playRandomCorrectSound();
-                                scoreNumber.addCorrect(); // إضافة النقاط
+                                scoreNumber.addCorrect();
+                                setState(() {
+                                  matches++;
+                                  placedNumbers[number] = draggedNumber;
+                                  draggableNumbers.remove(draggedNumber);
+                                });
+                              } else {
+                                // ❌ غلط
+                                SoundManager.playRandomWrongSound();
+                                scoreNumber.addWrong();
+                                setState(() {
+                                  mistakes++;
+                                });
                               }
-                              setState(() {
-                                placedNumbers[number] = draggedNumber;
-                                draggableNumbers.remove(draggedNumber);
-                              });
                             },
                           );
                         }).toList(),
@@ -178,6 +183,27 @@ class _NumberDragDropGameState extends State<NumberDragDropGame> {
 
                 Spacer(),
 
+                Column(
+                  children: [
+                    Text(
+                      "المطابقات: $matches",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "الأخطاء: $mistakes",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(
                   height: 140,
                   child: GridView.count(

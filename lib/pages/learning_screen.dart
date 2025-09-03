@@ -41,7 +41,7 @@ class _LearningScreenState extends State<LearningScreen> {
       soundManager: SoundManager(),
       items: widget.items,
     );
-
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.playCurrentSound();
     });
@@ -54,7 +54,8 @@ class _LearningScreenState extends State<LearningScreen> {
     super.dispose();
   }
 
-  void _goToNext() => _controller.next();
+  void _goToNext() { _controller.next();}
+ 
   void _goToPrevious() => _controller.previous();
 
   @override
@@ -161,14 +162,14 @@ class _LearningScreenState extends State<LearningScreen> {
           Positioned(
             bottom: 30,
             left: 20,
-            child: NextButtonWidget(onTap: _goToNext),
+            child: _currentIndex==widget.items.length-1? Text('') :NextButtonWidget(onTap: _goToNext),
           ),
 
           // زر السابق
           Positioned(
             bottom: 30,
             right: 20,
-            child: PreviousButtonWidget(onTap: _goToPrevious),
+            child: _currentIndex==0? Text('') : PreviousButtonWidget(onTap: _goToPrevious),
           ),
 
           // PageView مخفي للتحكم بالتنقل
@@ -193,3 +194,4 @@ class _LearningScreenState extends State<LearningScreen> {
     );
   }
 }
+

@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class MemoryGameScreen extends StatefulWidget {
   const MemoryGameScreen({super.key});
@@ -15,17 +18,15 @@ class MemoryGameScreen extends StatefulWidget {
 }
 
 class _MemoryGameScreenState extends State<MemoryGameScreen> {
-  final int gridSize = 18;
   bool showHint = true;
+  final int gridSize = 12; // 6 أزواج فقط
 
   List<String> images = [
     'assets/images/animalPicture/animal_game/اسد.png',
     'assets/images/animalPicture/animal_game/افعى.png',
-    'assets/images/animalPicture/animal_game/بعرفش اسمو.png',
     'assets/images/animalPicture/animal_game/بومة.png',
     'assets/images/animalPicture/animal_game/تمساح.png',
-    'assets/images/animalPicture/animal_game/ثعلب.png',
-    'assets/images/animalPicture/animal_game/حمار وحشي.png',
+
     'assets/images/animalPicture/animal_game/دب الباندا.png',
     'assets/images/animalPicture/animal_game/طاووس.png',
   ];
@@ -34,9 +35,10 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
 
   List<Map<String, dynamic>> cards = [];
   List<int> selectedIndexes = [];
-  int score = 0;
+  late TestScoreManager scoreAnimal;
   bool allowClick = true;
-
+  int correctMatches = 0;
+  int wrongAttempts = 0;
   bool showAnimation = false;
   bool showCongratsScreen = false;
   bool showLikeAnimation = false; // متغير جديد
@@ -46,6 +48,13 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
   @override
   void initState() {
     super.initState();
+    scoreAnimal = TestScoreManager(
+      images.length,
+      testName: "AnimalMemoryGame",
+      gameName: 'الحيوانات',
+    );
+    scoreAnimal.reset();
+
     debugPrint = (String? message, {int? wrapWidth}) {
       if (message != null) {
         print('[DEBUG] ${DateTime.now()}: $message');
@@ -63,11 +72,27 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     });
 
     setState(() {
-      score = 0;
+      correctMatches = 0;
+      wrongAttempts = 0;
       selectedIndexes = [];
-      allowClick = true;
+      allowClick = false; // منع النقر أثناء كشف البطاقات
       showAnimation = false;
       showCongratsScreen = false;
+    });
+
+    // كشف البطاقات مؤقتًا
+    for (var card in cards) {
+      card['revealed'] = true;
+    }
+    setState(() {});
+
+    Timer(const Duration(seconds: 3), () {
+      for (var card in cards) {
+        card['revealed'] = false;
+      }
+      setState(() {
+        allowClick = true; // السماح بالنقر بعد الاختفاء
+      });
     });
   }
 
@@ -93,20 +118,21 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
         setState(() {
           cards[first]['matched'] = true;
           cards[second]['matched'] = true;
-          score++;
+          correctMatches++;
+          scoreAnimal.addCorrect();
           showLikeAnimation = true;
         });
         Timer(const Duration(seconds: 3), () {
-          if (mounted) {
-            setState(() => showLikeAnimation = false);
-          }
+          if (mounted) setState(() => showLikeAnimation = false);
         });
       } else {
         await SoundManager.playRandomWrongSound();
-        await Future.delayed(
-          const Duration(milliseconds: 1000),
-        ); // وقت لرؤية البطاقات
+        setState(() {
+          wrongAttempts++;
+          scoreAnimal.addWrong();
+        });
 
+        await Future.delayed(const Duration(milliseconds: 1000));
         setState(() {
           cards[first]['revealed'] = false;
           cards[second]['revealed'] = false;
@@ -116,11 +142,18 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
       selectedIndexes.clear();
       allowClick = true;
 
+      // ✅ تعديل هنا: حفظ النتيجة في Firebase ثم الانتقال لشاشة النتائج
       if (cards.every((card) => card['matched'])) {
-        setState(() => showAnimation = true);
-        Timer(const Duration(seconds: 3), () {
-          setState(() => showCongratsScreen = true);
-        });
+        await scoreAnimal.saveScore();
+        if (!mounted) return;
+        Get.to(
+          () => ResultScreen(
+            result: scoreAnimal.finalScour,
+            animationPath: 'assets/animations/fly baloon slowly.json',
+            congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+            onRestart: _initializeCards,
+          ),
+        );
       }
     }
   }
@@ -157,16 +190,17 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
     }
 
     if (showCongratsScreen) {
-      return ResultScreen(
-        animationPath: 'assets/animations/baloon_fly and star.json',
-        congratsImagePath: 'assets/rewards/انت متميز.png',
-        onRestart: () {
-          _initializeCards();
-          setState(() {
-            showCongratsScreen = false;
-          });
-        },
-      );
+      Future.delayed(Duration(milliseconds: 300), () async {
+        await scoreAnimal.saveScore();
+        Get.to(
+          () => ResultScreen(
+            result: scoreAnimal.finalScour,
+            animationPath: 'assets/animations/fly baloon slowly.json',
+            congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+            onRestart: _initializeCards,
+          ),
+        );
+      });
     }
 
     return Scaffold(
@@ -180,8 +214,23 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
         children: [
           Column(
             children: [
-              const SizedBox(height: 16),
-              Text('النقاط: $score', style: const TextStyle(fontSize: 20)),
+              // ✅ مكان النقاط القديم استبدلناه
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Chip(
+                      label: Text('المطابقات: $correctMatches'),
+                      backgroundColor: Colors.green[100],
+                    ),
+                    Chip(
+                      label: Text('الأخطاء: $wrongAttempts'),
+                      backgroundColor: Colors.red[100],
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: GridView.builder(

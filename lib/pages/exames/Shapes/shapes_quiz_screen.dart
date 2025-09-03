@@ -6,6 +6,8 @@ import 'dart:math';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
+import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class ShapeMatchingGame extends StatefulWidget {
   const ShapeMatchingGame({super.key});
@@ -17,11 +19,7 @@ class ShapeMatchingGame extends StatefulWidget {
 class _ShapeMatchingGameState extends State<ShapeMatchingGame>
     with TickerProviderStateMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final List<String> _wrongSounds = [
-    'sounds/wrong1.mp3',
-    'sounds/wrong2.mp3',
-    'sounds/wrong3.mp3',
-  ];
+
   final Random _random = Random();
 
   // بيانات الأشكال والصور الأصلية
@@ -75,10 +73,20 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
   // مفاتيح لتحديد موقع الصور والأشكال
   List<GlobalKey> _imageKeys = [];
   List<GlobalKey> _shapeKeys = [];
-
+  late TestScoreManager scoreShape;
+  // عدادات المطابقات والأخطاء
+  int _correctMatches = 0;
+  int _wrongMatches = 0;
   @override
   void initState() {
     super.initState();
+    scoreShape = TestScoreManager(
+      _originalItems.length, // إجمالي عدد الأسئلة
+      testName: "ShapeMatchingGame ",
+      gameName: 'الأشكال', // اسم الاختبار
+    );
+    scoreShape.reset();
+
     _initializeGame();
   }
 
@@ -102,13 +110,10 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
 
     _imageKeys = List.generate(_items.length, (_) => GlobalKey());
     _shapeKeys = List.generate(_items.length, (_) => GlobalKey());
-
+    // إعادة تعيين العدادات
+    _correctMatches = 0;
+    _wrongMatches = 0;
     setState(() {});
-  }
-
-  void playRandomWrongSound() {
-    int randomIndex = _random.nextInt(_wrongSounds.length);
-    _audioPlayer.play(AssetSource(_wrongSounds[randomIndex]));
   }
 
   void _onShapeTap(int displayedIndex) {
@@ -180,27 +185,40 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
     });
 
     if (realShapeIndex == realImageIndex) {
-      _audioPlayer.play(AssetSource(_items[realShapeIndex]['sound']));
+      SoundManager.playRandomCorrectSound();
+
       setState(() {
         _matchedItems[realShapeIndex] = true;
-
-        // تحقق إذا كانت كل العناصر مطابقة
-
-        if (_matchedItems.every((matched) => matched)) {
-          Future.delayed(const Duration(milliseconds: 300), () {
-            // استخدمي GetX لفتح ResultScreen
-            Get.to(
-              () => ResultScreen(
-                animationPath: 'assets/animations/Star Success.json',
-                congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
-                onRestart: _resetGame,
-              ),
-            );
-          });
-        }
+        scoreShape.addCorrect();
+        _correctMatches++; // زيادة عدد المطابقات الصحيحة
       });
+
+      // تحقق إذا كانت كل العناصر مطابقة
+      if (_matchedItems.every((matched) => matched)) {
+        Future.delayed(const Duration(milliseconds: 300), () async {
+          try {
+            await scoreShape.saveScore(); // تأكد من نجاح الحفظ
+            if (mounted) {
+              Get.to(
+                () => ResultScreen(
+                  result: scoreShape.finalScour, // صححي الاسم
+                  animationPath: 'assets/animations/Star Success.json',
+                  congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+                  onRestart: _resetGame,
+                ),
+              );
+            }
+          } catch (e) {
+            print("Error saving score: $e");
+          }
+        });
+      }
     } else {
-      playRandomWrongSound();
+      scoreShape.addWrong();
+      SoundManager.playRandomWrongSound();
+      setState(() {
+        _wrongMatches++; // زيادة عدد الأخطاء
+      });
     }
   }
 
@@ -211,6 +229,8 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
       _selectedShapeIndex = null;
       _selectedImageIndex = null;
       _imageOrder.shuffle();
+      _correctMatches = 0;
+      _wrongMatches = 0;
     });
   }
 
@@ -382,8 +402,72 @@ class _ShapeMatchingGameState extends State<ShapeMatchingGame>
                     ],
                   ),
                 ),
+
+                // عدادات المطابقات والأخطاء
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // عداد المطابقات الصحيحة
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'المطابقات: $_correctMatches',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Ghayaty',
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // عداد الأخطاء
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.cancel, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'الأخطاء: $_wrongMatches',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Ghayaty',
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
+
             // 👇 شاشة التلميح كطبقة فوق اللعبة
             if (showHint)
               Positioned.fill(

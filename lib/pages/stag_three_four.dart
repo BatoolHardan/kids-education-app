@@ -11,7 +11,9 @@ import 'package:pro5/pages/arabic_numbers/numbers_data.dart';
 import 'package:pro5/pages/colors/color_card.dart';
 import 'package:pro5/pages/exames/animal_test/animal_card.dart';
 import 'package:pro5/pages/exames/color_test/color_card.dart';
-import 'package:pro5/pages/exames/letters/exam_card.dart';
+import 'package:pro5/pages/exames/letters/letter_questions.dart';
+import 'package:pro5/pages/exames/letters/letter_quiz.dart';
+
 import 'package:pro5/pages/exames/number_test/numbe_card.dart';
 import 'package:pro5/pages/exames/tests_screen.dart';
 import 'package:pro5/pages/learning_screen.dart';
@@ -42,9 +44,9 @@ class _StageThreeFourScreenState extends State<StageThreeFourScreen>
       "title": "الحروف",
       "background": "assets/images/backgrounds/letterbac.png",
       "color": Colors.redAccent,
-      "soundPath": "sounds/hello_sound/hello_letters.mp3",
+      "soundPath": "assets/images/backgrounds/colorbac.png",
       "page": LearningScreen(title: "الحروف", items: letters),
-      "testPage": ExamScreen(),
+      "testPage": LetterQuizScreen(questions: letterQuestions),
     },
     {
       "title": "الألوان",

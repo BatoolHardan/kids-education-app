@@ -42,93 +42,86 @@ class MainChildScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // بدل ما يخرج من التطبيق، نرجع لصفحة معينة باستخدام GetX
-        Get.off(() => const DataKideScreen());
-        return false; // منع الرجوع الافتراضي
-      },
-      child: Scaffold(
-        backgroundColor: Colors.lightBlue[50],
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: Center(
-                  child: Text(
-                    'مرحباً بك!',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      color: Colors.blue[800],
-                      fontFamily: 'Ghayaty',
-                    ),
-                  ),
-                ),
-              ),
-
-              // Subtitle
-              Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 40),
+    return Scaffold(
+      backgroundColor: Colors.lightBlue[50],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Center(
                 child: Text(
-                  'اختر ما تريد تعلمه اليوم',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.blue[600],
+                  'مرحباً بك!',
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: Colors.blue[800],
                     fontFamily: 'Ghayaty',
                   ),
                 ),
               ),
-
-              // Circles with Pulsing Effect
-              Expanded(
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 50,
-                      right: 50,
-                      child: PulsingWidget(
-                        child: AnimatedCircle(
-                          icon: Icons.school,
-                          color: Colors.blueAccent,
-                          label: 'التعلم',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const StageThreeFourScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 50,
-                      left: 50,
-                      child: PulsingWidget(
-                        child: AnimatedCircle(
-                          icon: Icons.games,
-                          color: Colors.pinkAccent,
-                          label: 'الاختبارات',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        TestsScreen(), // هنا الصفحة المطلوبة
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+            ),
+    
+            // Subtitle
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 40),
+              child: Text(
+                'اختر ما تريد تعلمه اليوم',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.blue[600],
+                  fontFamily: 'Ghayaty',
                 ),
               ),
-            ],
-          ),
+            ),
+    
+            // Circles with Pulsing Effect
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 50,
+                    right: 50,
+                    child: PulsingWidget(
+                      child: AnimatedCircle(
+                        icon: Icons.school,
+                        color: Colors.blueAccent,
+                        label: 'التعلم',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => const StageThreeFourScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 50,
+                    left: 50,
+                    child: PulsingWidget(
+                      child: AnimatedCircle(
+                        icon: Icons.games,
+                        color: Colors.pinkAccent,
+                        label: 'الاختبارات',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      TestsScreen(), // هنا الصفحة المطلوبة
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

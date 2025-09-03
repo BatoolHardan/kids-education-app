@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/pages/onboarding/login_page.dart';
@@ -50,7 +51,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     if (user != null) {
       // المستخدم مسجل دخول بالفعل → ننتقل مباشرة للصفحة الرئيسية
       Future.delayed(Duration.zero, () {
-        Get.offAll(() => MainChildPage()); // بدليها باسم صفحتك الرئيسية الفعلية
+        Get.offAll(() => MainChildPage()); 
+        //// بدليها باسم صفحتك الرئيسية الفعلية
+         
       });
       return;
     }
@@ -129,143 +132,153 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Stack(
-          children: [
-            // النجوم المتحركة في الخلفية
-            Positioned.fill(
-              child: IgnorePointer(
+
+
+    return WillPopScope(
+
+    onWillPop: () async {
+        SystemNavigator.pop(); // أغلق التطبيق بالكامل
+        return false; // منع السلوك الافتراضي للرجوع
+      },
+
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Stack(
+            children: [
+              // النجوم المتحركة في الخلفية
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: AnimatedBuilder(
+                    animation: _starAnimationController,
+                    builder: (_, __) {
+                      return CustomPaint(
+                        painter: _StarPainter(
+                          _controller.value,
+                          _starAnimationController,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+      
+              // الشخصية الرئيسية
+              Center(
                 child: AnimatedBuilder(
-                  animation: _starAnimationController,
-                  builder: (_, __) {
-                    return CustomPaint(
-                      painter: _StarPainter(
-                        _controller.value,
-                        _starAnimationController,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // الشخصية الرئيسية
-            Center(
-              child: AnimatedBuilder(
-                animation: _characterController,
-                builder: (context, child) {
-                  return Transform(
-                    transform:
-                        Matrix4.identity()
-                          ..translate(0.0, -15 * _characterController.value)
-                          ..rotateZ(0.02 * _characterController.value),
-                    child: Lottie.asset(
-                      'assets/animations/girl.json',
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.contain,
-                      controller: _controller,
-                      animate: true,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // الغيوم الثلاثة
-            if (showCloud1)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                top: 50,
-                left: 20,
-                child: Transform.scale(
-                  scale: cloud1Scale,
-                  child: _SpeechBubble(
-                    text: "يدعم اللغة العربية",
-                    icon: Icons.translate,
-                    color: Colors.orange[200]!,
-                    tailDirection: TailDirection.right,
-                  ),
-                ),
-              ),
-
-            if (showCloud2)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                top: 80,
-                right: 20,
-                child: Transform.scale(
-                  scale: cloud2Scale,
-                  child: _SpeechBubble(
-                    text: "تنمية السمع والبصر",
-                    icon: Icons.hearing,
-                    color: Colors.green[200]!,
-                    tailDirection: TailDirection.left,
-                  ),
-                ),
-              ),
-
-            if (showCloud3)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                bottom: 120,
-                left: MediaQuery.of(context).size.width / 2 - 80,
-                child: Transform.scale(
-                  scale: cloud3Scale,
-                  child: _SpeechBubble(
-                    text: "نظام مكافآت\nوللوحة تحكم أبوية",
-                    icon: Icons.family_restroom,
-                    color: Colors.purple[200]!,
-                    tailDirection: TailDirection.bottom,
-                  ),
-                ),
-              ),
-
-            // الزر الرئيسي
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: _controller,
+                  animation: _characterController,
                   builder: (context, child) {
-                    return Transform.scale(
-                      scale: 1.0 + (_controller.value * 0.1),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.to(() => LoginScreen());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 8,
-                          shadowColor: Colors.blue.withOpacity(0.5),
-                        ),
-                        child: const Text(
-                          'انطلق إلى رحلة المتعة',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    return Transform(
+                      transform:
+                          Matrix4.identity()
+                            ..translate(0.0, -15 * _characterController.value)
+                            ..rotateZ(0.02 * _characterController.value),
+                      child: Lottie.asset(
+                        'assets/animations/girl.json',
+                        width: 300,
+                        height: 300,
+                        fit: BoxFit.contain,
+                        controller: _controller,
+                        animate: true,
                       ),
                     );
                   },
                 ),
               ),
-            ),
-          ],
+      
+              // الغيوم الثلاثة
+              if (showCloud1)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  top: 50,
+                  left: 20,
+                  child: Transform.scale(
+                    scale: cloud1Scale,
+                    child: _SpeechBubble(
+                      text: "يدعم اللغة العربية",
+                      icon: Icons.translate,
+                      color: Colors.orange[200]!,
+                      tailDirection: TailDirection.right,
+                    ),
+                  ),
+                ),
+      
+              if (showCloud2)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  top: 80,
+                  right: 20,
+                  child: Transform.scale(
+                    scale: cloud2Scale,
+                    child: _SpeechBubble(
+                      text: "تنمية السمع والبصر",
+                      icon: Icons.hearing,
+                      color: Colors.green[200]!,
+                      tailDirection: TailDirection.left,
+                    ),
+                  ),
+                ),
+      
+              if (showCloud3)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  bottom: 120,
+                  left: MediaQuery.of(context).size.width / 2 - 80,
+                  child: Transform.scale(
+                    scale: cloud3Scale,
+                    child: _SpeechBubble(
+                      text: "نظام مكافآت\nوللوحة تحكم أبوية",
+                      icon: Icons.family_restroom,
+                      color: Colors.purple[200]!,
+                      tailDirection: TailDirection.bottom,
+                    ),
+                  ),
+                ),
+      
+              // الزر الرئيسي
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: 1.0 + (_controller.value * 0.1),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.to(() => LoginScreen());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 8,
+                            shadowColor: Colors.blue.withOpacity(0.5),
+                          ),
+                          child: const Text(
+                            'انطلق إلى رحلة المتعة',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

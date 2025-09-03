@@ -1,17 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pro5/services/auth_service.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileScreen extends StatefulWidget {
   UserProfileScreen({super.key});
 
-  final AuthController authController = Get.put(AuthController());
+  @override
+  State<UserProfileScreen> createState() => _UserProfileScreenState();
+}
 
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  final AuthController authController = Get.put(AuthController());
+  @override
+  
   @override
   Widget build(BuildContext context) {
     // استدعاء البيانات عند فتح الشاشة
-    authController.fetchUserData();
-
+       authController.fetchUserData();
+     
     return Scaffold(
       backgroundColor: Colors.blue[50],
       appBar: AppBar(
@@ -46,123 +54,237 @@ class UserProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-          child: Column(
-            children: [
-              // صورة شخصية حسب الجنس
-              Obx(
-                () => CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: AssetImage(
-                    authController.gender.value == 'female'
-                        ? 'assets/images/backgrounds/onbording-gril.png'
-                        : 'assets/images/backgrounds/onbording-boy.png',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // الاسم
-              Obx(
-                () => Text(
-                  authController.fullName.value,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // المرحلة والعمر
-              Obx(
-                () => Text(
-                  'الفئة العمرية: ${authController.ageGroup.value}',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // كارد أداء الطفل
-              Card(
-                color: Colors.green[100],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: const [
-                          Icon(Icons.arrow_forward, color: Colors.green),
-                          SizedBox(width: 10),
-                          Text(
-                            'أداء الطفل',
-                            style: TextStyle(
-                              fontSize: 22,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // صورة شخصية حسب الجنس
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                     SizedBox(width: 20,),        
+                    // الاسم
+                    Column(
+                      children: [
+                        Obx(
+                          () => Text(
+                           authController.fullName.value,
+                            style: const TextStyle(
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                              color: Colors.black,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
+                        ),
+                        const SizedBox(height: 10),
+                                    
+                        // المرحلة والعمر
+                        Obx(
+                          () => Text(
+                            'الفئة العمرية: ${authController.ageGroup.value}',
+                            style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                      ],
+                      
+                    )
+                    ,
                       Obx(
-                        () => Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'عدد الألعاب المنجزة:',
-                              style: TextStyle(fontSize: 18),
-                            ),
+                      () => CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage(
+                          authController.gender.value == 'female'
+                              ? 'assets/images/backgrounds/onbording-gril.png'
+                              : 'assets/images/backgrounds/onbording-boy.png',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                        
+                  ],
+                ),
+                 SizedBox(height: 30,),
+                // كارد أداء الطفل
+                Card(
+                  color: Colors.green[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.arrow_forward, color: Colors.green),
+                            SizedBox(width: 10),
                             Text(
-                              '${authController.gamesCompleted.value}',
-                              style: const TextStyle(fontSize: 18),
+                              'أداء الطفل',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Obx(
-                        () => Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'عدد النجوم:',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            Text(
-                              '${authController.starsEarned.value} ⭐',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
+                        const SizedBox(height: 20),
+            
+                        Obx(
+                          ()  => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'المهن:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                '${authController.scourProf.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Obx(
-                        () => Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'أكثر قسم محبب:',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            Text(
-                              authController.favoriteSection.value,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
+                        const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                             'الالوان:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                '${authController.scourColor.value} /10' ,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                           'الحيوانات:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                 '${authController.scourAnimal.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                              
+                            const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                              'الحروف:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                 '${authController.scourLitter.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                           const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                              'الحواس :',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                 '${authController.scourSens.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                           const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                               'الاشكال:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                '${authController.scourShape.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                           const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                              'الارقام:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                 '${authController.scourNum.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                           const SizedBox(height: 10),
+                        Obx(
+                          () => Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'الفصول:',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                 '${authController.scourSeason.value} /10',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(color: Colors.black,)  , 
+                     Obx(() =>   Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                               'المجموع النهائي:',
+                                style: TextStyle(fontSize: 18,color: Colors.green),
+                              ),
+                              Text(
+                                '${authController.TotalSum.value.toString()} /80',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),),
+                          SizedBox(height: 10,),
+                          Obx(() =>    Text(
+                                'التقدير: ${authController.Taqdeer.value}',
+                                style: TextStyle(fontSize: 18,color: Colors.blue),
+                              ) ,)
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

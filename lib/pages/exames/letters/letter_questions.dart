@@ -1,4 +1,4 @@
-final List<Map<String, dynamic>> questions = [
+final List<Map<String, dynamic>> letterQuestions = [
   {
     'image': 'assets/images/letter&numbers/letters/أسد.png',
     'word': 'أسد',

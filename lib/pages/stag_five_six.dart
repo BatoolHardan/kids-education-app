@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -91,6 +93,8 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
   }
 
   Future<void> fetchChildName() async {
+      String ss=await getData('ColorQuiz');
+      print('sdammmmmmmmmmm$ss');
     final data = await authController.getUserDataFromFirestore();
     setState(() {
       childName = data?['name'] ?? 'طفل';
@@ -254,3 +258,11 @@ class _StageFiveToSixScreenState extends State<StageFiveToSixScreen>
     );
   }
 }
+   Future<String> getData(String gameName) async{
+   DocumentSnapshot documentSnapshot= await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid)
+   .collection('scores').doc(gameName).get();
+         if(documentSnapshot.exists){
+         return documentSnapshot.get('score');
+         }else {return 'no valu';}
+   
+  } 

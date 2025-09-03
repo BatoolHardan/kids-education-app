@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/get_core.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pro5/animations/sound_play.dart';
 import 'dart:async';
@@ -63,6 +65,9 @@ class _SplashWorldScreenState extends State<SplashWorldScreen>
         context,
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),
       );
+
+     //Get.offAll(WelcomeScreen());
+      
     });
   }
 

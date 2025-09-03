@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pro5/animations/game_hint.dart';
 import 'package:pro5/animations/result_page.dart';
 import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class Question {
   final String imageAsset;
   final String questionText;
   final List<String> options;
   final int correctAnswerIndex;
-
+  late TestScoreManager scoreHawas;
   Question({
     required this.imageAsset,
     required this.questionText,
@@ -63,6 +65,7 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
   int? selectedOptionIndex;
   bool answered = false;
   bool showHint = true;
+  late TestScoreManager scoreHawas;
 
   void nextQuestion() {
     setState(() {
@@ -71,9 +74,30 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
       } else {
-        showCongratsScreen = true;
+        _finishQuiz();
       }
     });
+  }
+
+  void _finishQuiz() async {
+    await scoreHawas.saveScore();
+    Get.to(
+      () => ResultScreen(
+        result: scoreHawas.finalScour,
+        animationPath: 'assets/animations/heart_fly.json',
+        congratsImagePath: 'assets/rewards/انت متميز.png',
+        onRestart: () {
+          setState(() {
+            currentQuestionIndex = 0;
+            selectedOptionIndex = null;
+            answered = false;
+            showCongratsScreen = false;
+            showHint = true;
+            scoreHawas.reset();
+          });
+        },
+      ),
+    );
   }
 
   void selectOption(int index) {
@@ -82,19 +106,34 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
       answered = true;
     });
     if (index == questions[currentQuestionIndex].correctAnswerIndex) {
+      scoreHawas.addCorrect();
       SoundManager.playRandomCorrectSound();
+
       Future.delayed(const Duration(milliseconds: 1000), () {
         nextQuestion();
       });
     } else {
+      scoreHawas.addWrong();
       SoundManager.playRandomWrongSound();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    scoreHawas = TestScoreManager(
+      questions.length,
+      testName: "SensesQuiz",
+      gameName: "الحواس",
+    );
+    scoreHawas.reset();
   }
 
   @override
   Widget build(BuildContext context) {
     if (showCongratsScreen) {
       return ResultScreen(
+        result: 0,
         animationPath: 'assets/animations/heart_fly.json',
         congratsImagePath: 'assets/rewards/انت متميز.png',
         onRestart: () {
@@ -114,12 +153,14 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('اختبار الحواس'),
+        title: const Text(
+          'اختبار الحواس',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
-      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           // الخلفية
@@ -131,7 +172,6 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
           ),
 
           // شاشة التلميح
-          // 👇 طبقة التلميح
           if (showHint)
             GameHintOverlay(
               hintText: "استخدم الحواس لتتعرف على الصور 👁️👂👅👃✋",
@@ -142,14 +182,63 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
                 });
               },
             ),
-          // محتوى الأسئلة
+
           if (!showHint)
-            Padding(
+            SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Image.asset(question.imageAsset, height: 220),
-                  const SizedBox(height: 20),
+                  // شريط التقدم تحت العنوان
+                  Text(
+                    "التقدّم: ${currentQuestionIndex + 1} / ${questions.length}",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          (currentQuestionIndex + 1 == questions.length)
+                              ? Colors.green
+                              : Colors.teal,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: 0,
+                      end: (currentQuestionIndex + 1) / questions.length,
+                    ),
+                    duration: const Duration(milliseconds: 500),
+                    builder: (context, value, child) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: value,
+                          backgroundColor: Colors.grey[300]?.withOpacity(0.7),
+                          color: Colors.teal,
+                          minHeight: 12,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // الصورة
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.5), // خلفية شفافة
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      question.imageAsset,
+                      height: 160,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // السؤال
                   Text(
                     question.questionText,
                     style: const TextStyle(
@@ -159,7 +248,9 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+
+                  // الخيارات
                   ...List.generate(question.options.length, (index) {
                     Color optionColor = Colors.blue.shade100.withOpacity(0.8);
                     if (selectedOptionIndex != null) {
@@ -185,7 +276,7 @@ class _SensesQuizPageState extends State<SensesQuizPage> {
                       ),
                     );
                   }),
-                  const Spacer(),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:pro5/animations/game_hint.dart';
+import 'package:pro5/animations/result_page.dart';
+import 'package:pro5/animations/sound_play.dart';
+import 'package:pro5/utils/score_manager.dart';
 
 class ColorQuiz extends StatefulWidget {
   const ColorQuiz({super.key});
@@ -24,6 +29,9 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
   int currentColorIndex = 0;
   String targetColor = 'red';
   bool showHint = true;
+  late TestScoreManager scoreColor;
+  int _correctAnswers = 0;
+  int _wrongAnswers = 0;
 
   List<ColorItem> items = [];
   late AnimationController targetColorAnimationController;
@@ -37,6 +45,12 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
     targetColor = quizColors[currentColorIndex];
     _setupItems();
     _setupTargetColorAnimation();
+    scoreColor = TestScoreManager(
+      quizColors.length, // عدد الألوان الكلّي
+      testName: "ColorQuiz",
+      gameName: 'الألوان',
+    );
+    scoreColor.reset();
   }
 
   void _setupItems() {
@@ -91,12 +105,19 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
     if (!item.visible) return;
 
     if (item.color == targetColor) {
+      // ✅ إجابة صحيحة
+      setState(() {
+        _correctAnswers++;
+        scoreColor.addCorrect();
+      });
+      SoundManager.playRandomCorrectSound();
       await item.controller.forward();
       setState(() => item.visible = false);
 
       final remainingCorrect = items.any(
         (e) => e.visible && e.color == targetColor,
       );
+
       if (!remainingCorrect) {
         await Future.delayed(Duration(milliseconds: 400));
         if (currentColorIndex < quizColors.length - 1) {
@@ -111,78 +132,48 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
           _showFinalCelebration();
         }
       }
+    } else {
+      // ❌ إجابة غلط
+      setState(() {
+        _wrongAnswers++;
+        scoreColor.addWrong();
+      });
+      SoundManager.playRandomWrongSound();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.white),
+              SizedBox(width: 10),
+              Text('هذا اللون غير صحيح!'),
+            ],
+          ),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
-  void _showFinalCelebration() {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.celebration, color: Colors.amber, size: 80),
-                SizedBox(height: 16),
-                Text(
-                  '👏👏 أنهيت كل الألوان! ممتاز!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      currentColorIndex = 0;
-                      targetColor = quizColors[0];
-                      _setupItems();
-                      targetColorAnimationController.reset();
-                      targetColorAnimationController.repeat(reverse: true);
-                    });
-                  },
-                  child: Text('إعادة المحاولة'),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
-
-  Widget buildColorCircle(int index) {
-    final item = items[index];
-    final color = item.toColor();
-
-    return AnimatedBuilder(
-      animation: item.controller,
-      builder: (_, __) {
-        final scale = item.visible ? item.scale.value : 0.0;
-        return Transform.scale(
-          scale: scale,
-          child:
-              item.visible
-                  ? GestureDetector(
-                    onTap: () => handleTap(index),
-                    child: CircleAvatar(
-                      radius: 35,
-                      backgroundColor: color,
-                      child:
-                          item.color == 'white'
-                              ? Container(
-                                width: 70,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.grey),
-                                  color: color,
-                                ),
-                              )
-                              : null,
-                    ),
-                  )
-                  : SizedBox(width: 70, height: 70),
-        );
-      },
+  Future<void> _showFinalCelebration() async {
+    await scoreColor.saveScore();
+    Get.to(
+      () => ResultScreen(
+        result: scoreColor.finalScour,
+        animationPath: 'assets/animations/fly baloon slowly.json',
+        congratsImagePath: 'assets/rewards/مشاركة رائعة.png',
+        onRestart: () {
+          setState(() {
+            currentColorIndex = 0;
+            targetColor = quizColors[0];
+            _setupItems();
+            _correctAnswers = 0;
+            _wrongAnswers = 0;
+            scoreColor.reset(); // ✅ تم التعديل هنا
+            targetColorAnimationController.reset();
+            targetColorAnimationController.repeat(reverse: true);
+          });
+        },
+      ),
     );
   }
 
@@ -235,6 +226,43 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
     }
     targetColorAnimationController.dispose();
     super.dispose();
+  }
+
+  Widget buildColorCircle(int index) {
+    final item = items[index];
+    final color = item.toColor();
+
+    return AnimatedBuilder(
+      animation: item.controller,
+      builder: (_, __) {
+        final scale = item.visible ? item.scale.value : 0.0;
+        return Transform.scale(
+          scale: scale,
+          child:
+              item.visible
+                  ? GestureDetector(
+                    onTap: () => handleTap(index),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: color,
+                      child:
+                          item.color == 'white'
+                              ? Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey),
+                                  color: color,
+                                ),
+                              )
+                              : null,
+                    ),
+                  )
+                  : SizedBox(width: 70, height: 70),
+        );
+      },
+    );
   }
 
   @override
@@ -331,21 +359,21 @@ class _ColorQuizState extends State<ColorQuiz> with TickerProviderStateMixin {
       ),
     );
   }
+}
 
-  String _arabicColorName(String color) {
-    final names = {
-      'red': 'أحمر',
-      'blue': 'أزرق',
-      'green': 'أخضر',
-      'orange': 'برتقالي',
-      'black': 'أسود',
-      'white': 'أبيض',
-      'yellow': 'أصفر',
-      'brown': 'بني',
-      'pink': 'وردي',
-    };
-    return names[color] ?? color;
-  }
+String _arabicColorName(String color) {
+  final names = {
+    'red': 'أحمر',
+    'blue': 'أزرق',
+    'green': 'أخضر',
+    'orange': 'برتقالي',
+    'black': 'أسود',
+    'white': 'أبيض',
+    'yellow': 'أصفر',
+    'brown': 'بني',
+    'pink': 'وردي',
+  };
+  return names[color] ?? color;
 }
 
 class ColorItem {

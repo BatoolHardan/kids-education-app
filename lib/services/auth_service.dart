@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:pro5/pages/onboarding/main_child_page.dart';
+import 'package:pro5/pages/stag_five_six.dart';
 import 'package:pro5/pages/stag_three_four.dart';
 
 class AuthController extends GetxController {
@@ -10,15 +11,41 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+       Future<String> getScore(String gameName) async{
+   DocumentSnapshot documentSnapshot= await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid)
+   .collection('scores').doc(gameName).get();
+         
+         if(documentSnapshot.exists){
+         return documentSnapshot.get('score').toString();
+         }else {return '0';}
+  } 
+
+    
   // ✅ متغيرات المستخدم
   RxString fullName = 'مستخدم'.obs;
-  RxString ageGroup = ''.obs; // ✅ جديد
-
+  RxString TotalSum = '0'.obs; // ✅ جديد
+    RxString ageGroup = 'غير محدد'.obs;      
   RxString gender = 'غير محدد'.obs;
-  RxInt gamesCompleted = 0.obs;
-  RxInt starsEarned = 0.obs;
+  RxString Taqdeer = 'غير محدد'.obs;
+//  RxInt starsEarned = 0.obs;
   RxString favoriteSection = 'غير معروف'.obs;
+  RxString scourColor = '0'.obs;
+  RxString scourAnimal = '0'.obs;
+  RxString scourLitter = '0'.obs;
+  RxString scourShape = '0'.obs;
+  RxString scourNum = '0'.obs;
+  RxString scourSens = '0'.obs;
+  RxString scourProf = '0'.obs;
+  RxString scourSeason = '0'.obs;
 
+      String getSum(){
+      double sum=double.parse(scourAnimal.value)+double.parse(scourColor.value)+double.parse(scourLitter.value)
+      +double.parse(scourSeason.value)+double.parse(scourSens.value)+double.parse(scourShape.value)+double.parse(scourNum.value)
+      +double.parse(scourProf.value);
+   
+     return sum.toStringAsFixed(2);
+
+    }
   /// ✅ إنشاء الحساب باستخدام الإيميل والباسوورد
   Future<User?> createUserWithEmailAndPassword({
     required String email,
@@ -34,6 +61,19 @@ class AuthController extends GetxController {
       Get.snackbar('خطأ', e.message ?? 'فشل في إنشاء الحساب');
       return null;
     }
+  }
+
+String getTaqdeer(){
+    if( double.parse(TotalSum.value)>60) {
+      return 'ممتاز😍';
+    }else if( double.parse(TotalSum.value)>40){
+      return 'جيد😊';
+    }else if( double.parse(TotalSum.value)>20){
+      return 'وسط 😒';
+    }else {
+      return 'ضعيف😢';
+    }
+
   }
 
   /// ✅ تخزين معلومات المستخدم في Firestore
@@ -108,15 +148,29 @@ class AuthController extends GetxController {
 
         if (userDoc.exists) {
           fullName.value = userDoc['name'] ?? 'مستخدم';
+          
           ageGroup.value = userDoc['ageGroup'] ?? ''; // ✅ بدل int
           gender.value = userDoc['gender'] ?? 'غير محدد';
-          gamesCompleted.value = userDoc['gamesCompleted'] ?? 0;
-          starsEarned.value = userDoc['starsEarned'] ?? 0;
-          favoriteSection.value = userDoc['favoriteSection'] ?? 'غير معروف';
+        
+          
+          scourAnimal.value=await getScore('AnimalMemoryGame');
+          scourProf.value=await getScore('JobsMatchingGame');
+          scourShape.value=await getScore('ShapeMatchingGame');
+          scourLitter.value=await getScore('LetterQuiz');
+          scourSens.value=await getScore('SensesQuiz');
+          scourSeason.value=await getScore('SeasonsMatchingGame');
+          scourNum.value=await getScore('NumbersMatchingGame');
+          scourColor.value=await getScore('ColorQuiz');
+          TotalSum.value=getSum();
+          Taqdeer.value=getTaqdeer();
+        
         }
       }
     } catch (e) {
       print('Error fetching user data: $e');
     }
   }
+
 }
+
+ 

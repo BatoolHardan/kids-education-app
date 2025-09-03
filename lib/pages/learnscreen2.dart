@@ -253,14 +253,14 @@ class _LearnScreenState extends State<LearnScreen> {
           Positioned(
             bottom: 30,
             left: 20,
-            child: NextButtonWidget(onTap: _goToNext),
+            child: _currentIndex==widget.items.length-1? Text(''): NextButtonWidget(onTap: _goToNext),
           ),
 
           // زر السابق
           Positioned(
             bottom: 30,
             right: 20,
-            child: PreviousButtonWidget(onTap: _goToPrevious),
+            child: _currentIndex==0? Text(''): PreviousButtonWidget(onTap: _goToPrevious),
           ),
 
           // زر إعادة تشغيل الصوت
